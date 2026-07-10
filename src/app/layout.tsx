@@ -1,0 +1,71 @@
+import type { Metadata, Viewport } from "next";
+import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import "./globals.css";
+import { ThemeProvider } from "@/components/theme/theme-provider";
+import { SpaceBackground } from "@/components/theme/space-background";
+import { Sidebar } from "@/components/layout/sidebar";
+import { Topbar } from "@/components/layout/topbar";
+import { MobileNav } from "@/components/layout/mobile-nav";
+import { CommandPalette } from "@/components/command/command-palette";
+import { PageTransition } from "@/components/layout/page-transition";
+
+const display = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+});
+const sans = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: "ccBilly 工作台",
+  description: "B哥 的本地优先个人工作台 · 深空玻璃拟态",
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#060913" },
+    { media: "(prefers-color-scheme: light)", color: "#F4F6FC" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html
+      lang="zh-CN"
+      suppressHydrationWarning
+      className={`${display.variable} ${sans.variable} ${mono.variable}`}
+    >
+      <body className="font-sans antialiased">
+        <ThemeProvider>
+          <SpaceBackground />
+          <div className="flex min-h-screen">
+            <Sidebar />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <Topbar />
+              <main className="flex-1 px-4 pb-24 pt-2 md:px-6 md:pb-8">
+                <PageTransition>{children}</PageTransition>
+              </main>
+            </div>
+          </div>
+          <MobileNav />
+          <CommandPalette />
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}

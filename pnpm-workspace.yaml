@@ -1,0 +1,14 @@
+onlyBuiltDependencies:
+  - better-sqlite3
+  - esbuild
+  - sharp
+  - unrs-resolver
+
+# framer-motion 12.23.24 imports `activeAnimations` from motion-dom, but a later
+# motion-dom within its caret range removed that export. Pin the matching version.
+overrides:
+  motion-dom: "12.23.23"
+
+# Native binaries are built manually (macOS toolchain); do not re-run the
+# implicit `install` deps-status check before each `pnpm exec`/`pnpm run`.
+verifyDepsBeforeRun: false

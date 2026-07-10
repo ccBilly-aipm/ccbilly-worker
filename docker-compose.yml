@@ -1,0 +1,20 @@
+# ccBilly 工作台 · optional local container deployment.
+# vault/ is bind-mounted so your Markdown data lives on the host and stays in Git.
+services:
+  ccbilly:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      # Set a real passcode; this only guards /admin against accidental local clicks.
+      ADMIN_PASSCODE: ${ADMIN_PASSCODE:-changeme}
+      CCBILLY_NO_WATCH: "0"
+    volumes:
+      # Host vault/ ↔ container: data stays on host, Git-tracked.
+      - ./vault:/app/vault
+      # Index cache is per-container; rebuildable, not committed.
+      - ccbilly-cache:/app/cache
+    restart: unless-stopped
+
+volumes:
+  ccbilly-cache:

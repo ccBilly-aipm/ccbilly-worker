@@ -1,0 +1,216 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Deep-Space Glassmorphism design tokens (spec §7).
+ * Dark ("深空") is the default; Light ("云海晨光") is an independent design,
+ * not a naive inversion. Theme-aware colors are RGB triplets so Tailwind's
+ * <alpha-value> works. Brand + semantic hexes live in tailwind.config.ts.
+ */
+
+:root,
+:root.light {
+  /* 云海晨光 (light) */
+  --bg: 244 246 252; /* #F4F6FC */
+  --bg-2: 232 237 250; /* #E8EDFA */
+  --surface: 255 255 255;
+  --fg: 11 19 36; /* #0B1324 */
+  --fg-muted: 71 85 110; /* slate-ish, AA on light glass */
+  --fg-disabled: 148 163 184;
+  --border: 15 23 42; /* used at low alpha */
+  --glass-bg: 255 255 255;
+  --glass-alpha: 0.65;
+  --glass-border-alpha: 0.08;
+  --glass-blur: 20px;
+  --aurora-cyan: 8 145 178; /* #0891B2 deepened for contrast */
+  --aurora-violet: 109 40 217; /* #6D28D9 */
+  --aurora-alpha: 0.1;
+  --brand-from: #0891b2;
+  --brand-to: #6d28d9;
+  color-scheme: light;
+}
+
+:root.dark {
+  /* 深空 (dark) */
+  --bg: 6 9 19; /* #060913 */
+  --bg-2: 5 7 15; /* #05070F */
+  --surface: 255 255 255;
+  --fg: 234 240 250; /* #EAF0FA */
+  --fg-muted: 156 168 189; /* ~rgba(234,240,250,0.62) opaque-ish */
+  --fg-disabled: 90 100 120;
+  --border: 255 255 255;
+  --glass-bg: 255 255 255;
+  --glass-alpha: 0.055;
+  --glass-border-alpha: 0.1;
+  --glass-blur: 24px;
+  --aurora-cyan: 34 211 238; /* #22D3EE */
+  --aurora-violet: 139 92 246; /* #8B5CF6 */
+  --aurora-alpha: 0.12;
+  --brand-from: #22d3ee;
+  --brand-to: #c084fc;
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    border-color: rgb(var(--border) / var(--glass-border-alpha));
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    color: rgb(var(--fg));
+    background: rgb(var(--bg));
+    font-feature-settings: "cv11", "ss01";
+    min-height: 100vh;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background: rgb(var(--aurora-cyan) / 0.25);
+  }
+}
+
+@layer components {
+  /* The full-viewport ambient background: radial base + two drifting auroras
+     + star field (stars are painted by a canvas component on top). */
+  .space-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background:
+      radial-gradient(
+        120% 120% at 50% 40%,
+        rgb(var(--bg-2)) 0%,
+        rgb(var(--bg)) 70%
+      );
+    pointer-events: none;
+  }
+  .aurora {
+    position: fixed;
+    z-index: -1;
+    border-radius: 9999px;
+    filter: blur(130px);
+    opacity: var(--aurora-alpha);
+    pointer-events: none;
+    will-change: transform;
+  }
+  .aurora-cyan {
+    background: rgb(var(--aurora-cyan));
+    width: 46vw;
+    height: 46vw;
+    top: -8vw;
+    left: -6vw;
+    animation: aurora-drift 40s ease-in-out infinite;
+  }
+  .aurora-violet {
+    background: rgb(var(--aurora-violet));
+    width: 42vw;
+    height: 42vw;
+    bottom: -10vw;
+    right: -4vw;
+    animation: aurora-drift 46s ease-in-out infinite reverse;
+  }
+
+  /* Glass card primitive (spec §7). */
+  .glass {
+    background: rgb(var(--glass-bg) / var(--glass-alpha));
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+    border: 1px solid rgb(var(--border) / var(--glass-border-alpha));
+    border-radius: 18px;
+    box-shadow: 0 8px 40px rgba(2, 6, 23, 0.5);
+    position: relative;
+  }
+  :root.light .glass {
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+  }
+  /* Inner top highlight (1px inside edge). */
+  .glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding-top: 1px;
+    background: linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 0.18),
+      transparent 30%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .glass-hover {
+    transition:
+      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .glass-hover:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 40px rgba(2, 6, 23, 0.5),
+      0 0 24px rgba(34, 211, 238, 0.15);
+  }
+
+  .text-brand-gradient {
+    background: linear-gradient(
+      135deg,
+      var(--brand-from),
+      var(--brand-to)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .btn-brand {
+    background: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+    color: #fff;
+    border-radius: 12px;
+    transition: filter 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .btn-brand:hover {
+    filter: brightness(1.08);
+  }
+
+  /* Glass shimmer skeleton. */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: rgb(var(--glass-bg) / var(--glass-alpha));
+    border-radius: 12px;
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(var(--fg) / 0.06),
+      transparent
+    );
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+}
+
+/* Motion accessibility: kill decorative animation (spec §7). */
+@media (prefers-reduced-motion: reduce) {
+  .aurora,
+  .skeleton::after,
+  .animate-orbit-spin,
+  .animate-aurora-drift {
+    animation: none !important;
+  }
+  * {
+    transition-duration: 0.001ms !important;
+  }
+}

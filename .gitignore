@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# next.js
+.next/
+out/
+next-env.d.ts
+
+# local index cache (rebuildable from vault/ — never commit)
+cache/
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# obsidian workspace config (README explains how to adjust)
+vault/.obsidian/
+
+# testing artifacts
+/test-results/
+/playwright-report/
+/playwright/.cache/
+coverage/
+
+# os / editor
+.DS_Store
+*.log
+
+# NOTE: vault/ itself MUST be committed — it is the data + backup carrier.
