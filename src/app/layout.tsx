@@ -50,7 +50,10 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${display.variable} ${sans.variable} ${mono.variable}`}
     >
-      <body className="font-sans antialiased">
+      {/* suppressHydrationWarning: some browser extensions inject attributes
+          (e.g. mpa-version) onto <body> before React hydrates, which is harmless
+          but triggers a hydration mismatch warning. */}
+      <body className="font-sans antialiased" suppressHydrationWarning>
         <ThemeProvider>
           <SpaceBackground />
           <div className="flex min-h-screen">

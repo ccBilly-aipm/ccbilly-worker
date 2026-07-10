@@ -47,14 +47,18 @@ export function TodayOrbit({
   const circ = 2 * Math.PI * rInner;
   const offset = circ * (1 - completionRate / 100);
 
-  // distribute points evenly on the orbit; multiple radii for density
+  // distribute points evenly on the orbit; multiple radii for density.
+  // Round to 2 decimals so server (Node) and client (browser) trig produce the
+  // exact same string — otherwise last-digit float drift causes a hydration
+  // mismatch on the <circle> cx/cy attributes.
+  const round2 = (n: number) => Math.round(n * 100) / 100;
   const placed = points.map((p, i) => {
     const angle = (i / Math.max(points.length, 1)) * Math.PI * 2 - Math.PI / 2;
     const ringR = rOrbit + (i % 3) * 12 - 12;
     return {
       ...p,
-      x: cx + Math.cos(angle) * ringR,
-      y: cy + Math.sin(angle) * ringR,
+      x: round2(cx + Math.cos(angle) * ringR),
+      y: round2(cy + Math.sin(angle) * ringR),
     };
   });
 

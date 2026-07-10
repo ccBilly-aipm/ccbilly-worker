@@ -41,6 +41,7 @@
 | ADR-008 | 2026-07-10 | M1 即执行 `git init` + `.gitignore`，vault/ 从第一天纳入版本控制；远程关联留给 B哥 | B哥 决策「M1 就 git init」；Git 同步面板依赖 repo | claude-main |
 | ADR-009 | 2026-07-10 | 自动化测试中的 Skills 目录一律指向临时目录（env `CCBILLY_SKILLS_TEST_ROOT` 或 fixture），**绝不触碰真实 `~/.claude/skills/`** | 规格 §3 验证标准 + 红线 | claude-main |
 | ADR-010 | 2026-07-10 | 日期边界按系统本地时区计算；ISO 周用于周报文件名（`YYYY-Www`）；每周起始日=周一（后台可改） | 规格 §0/§5/§6.8 | claude-main |
+| ADR-011 | 2026-07-10 | 今日轨道光点坐标（`Math.cos/sin` 结果）四舍五入到 2 位小数；`<body>` 加 `suppressHydrationWarning` | ①服务端/客户端三角函数浮点末位漂移导致 SVG cx/cy hydration mismatch，四舍五入使字符串一致（视觉零影响）；②浏览器扩展（如 mpa-*）在 hydrate 前注入 body 属性属无害误报 | claude-main |
 
 > 后续新增 ADR 依次编号，只增不删；被推翻的 ADR 标注「已被 ADR-NNN 取代」而非删除。
 

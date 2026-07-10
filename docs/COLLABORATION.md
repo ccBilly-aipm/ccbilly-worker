@@ -7,7 +7,7 @@
 | 标识 | 类型 | 角色 | 领地 | 加入时间 |
 |---|---|---|---|---|
 | claude-main | Claude Code | 主开发 | 全仓库（public/assets/ 产出以任务分配为准） | 2026-07-10 |
-| codex-image | Codex | 视觉素材（预留，未启用） | public/assets/ | — |
+| codex-image | Codex | 视觉素材 | public/assets/ | 2026-07-10 15:24 |
 
 ## 2. 协作规则
 
@@ -44,6 +44,7 @@
 | M6-2 | 命令面板 Cmd+K | M6 | ✅ 已完成 | command-palette（M1 建成，M6 验收：全局搜索+快捷动作） |
 | M6-3 | 动效 + 空状态三件套全量 + 无障碍 + Lighthouse | M6 | ✅ 已完成 | 全站；桌面 Lighthouse 99/96，reduced-motion+移动端 E2E |
 | M6-4 | README + DELIVERY_REPORT 收尾 | M6 | ✅ 已完成 | README.md、docs/DELIVERY_REPORT.md |
+| VIS-1 | Part B 正式视觉素材（Logo/主题背景/空状态/404） | Visual | 🔄 进行中@codex-image | `public/assets/` 9 张 GPT Image 素材 |
 
 ## 4. 协作日志
 
