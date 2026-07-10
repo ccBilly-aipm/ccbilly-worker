@@ -1,5 +1,13 @@
-import { ComingSoon } from "@/components/ui/coming-soon";
+import { Suspense } from "react";
+import { WeeklyPageInner } from "@/features/reports/weekly-page-inner";
+import { SkeletonCard } from "@/components/ui/skeleton";
+
+export const dynamic = "force-dynamic";
 
 export default function WeeklyReportsPage() {
-  return <ComingSoon title="周报" milestone="M3" kind="reports" />;
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-4xl"><SkeletonCard /></div>}>
+      <WeeklyPageInner />
+    </Suspense>
+  );
 }

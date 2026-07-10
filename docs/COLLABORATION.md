@@ -32,9 +32,9 @@
 | M2-3 | 看板视图（拖拽改 status + 追加动态） | M2 | ✅ 已完成 | kanban-board（dnd-kit）、task-card |
 | M2-4 | 任务详情抽屉（编辑器/子任务/进度/时间线） | M2 | ✅ 已完成 | task-drawer |
 | M2-5 | 合集页（进度环 + 归档） | M2 | ✅ 已完成 | collections-client、进度环、合集详情页 |
-| M3-1 | 日报聚合/编辑/定稿/日历/复制 Markdown | M3 | 🔄 进行中@claude-main | features/reports 日报 |
-| M3-2 | 周报聚合/图表/编辑/定稿/导出 | M3 | ⬜ 待认领 | features/reports 周报 |
-| M4-1 | Claude Code Skills 扫描/查看/编辑（备份）+ 白名单防穿越 | M4 | ⬜ 待认领 | src/lib/skills、features/skills TabA |
+| M3-1 | 日报聚合/编辑/定稿/日历/复制 Markdown | M3 | ✅ 已完成 | aggregate、report-service、daily-client、report-calendar |
+| M3-2 | 周报聚合/图表/编辑/定稿/导出 | M3 | ✅ 已完成 | weekly-client、weekly-charts（Recharts）、export |
+| M4-1 | Claude Code Skills 扫描/查看/编辑（备份）+ 白名单防穿越 | M4 | 🔄 进行中@claude-main | src/lib/skills、features/skills TabA |
 | M4-2 | 个人技能树（矩阵/雷达图/学习记录） | M4 | ⬜ 待认领 | features/skills TabB |
 | M4-3 | 知识库轻量浏览 + 双链 + 反链 | M4 | ⬜ 待认领 | features/knowledge |
 | M5-1 | 应用中心（link/iframe 降级/proxy 骨架 + 演示） | M5 | ⬜ 待认领 | features/apps、/api/proxy |
@@ -46,6 +46,12 @@
 | M6-4 | README + DELIVERY_REPORT 收尾 | M6 | ⬜ 待认领 | README.md、docs/DELIVERY_REPORT.md |
 
 ## 4. 协作日志
+
+### 2026-07-10 14:20 [claude-main]
+- 完成：**M3 报告系统全部交付**。日报聚合（读全量任务 动态、按 完成/推进/新建/受阻 归类、填固定五段模板、明日计划预填高优未完成）、重新聚合的增量合并（不覆盖手写内容）、编辑/失焦保存/定稿、月历浏览、复制为纯 Markdown（飞书友好）；周报聚合（完成/新建数 + 各合集投入占比）、两张 Recharts 图（每日完成柱状 + 合集分布环）、编辑/定稿/导出 .md。
+- 变更：`pnpm verify` 全绿（39 单测，含增量合并不覆盖手写的验证）；9 个 E2E 全通过，覆盖「新建任务→生成日报→编辑→定稿→磁盘 status:final」完整无手工拷贝链路 + 周报生成。
+- 下一步：M4-1 Claude Code Skills 扫描/查看/编辑（编辑前备份到 .trash）+ 白名单防路径穿越（红线）。
+- 阻塞：无（Git 远端未配置，本地提交照常）。
 
 ### 2026-07-10 14:05 [claude-main]
 - 完成：**M2 任务系统全部交付**。任务/合集 service（写 .md→追加动态→重建索引）、Route Handlers、列表视图（筛选/排序/搜索）、看板（dnd-kit 拖拽改 status 并自动记动态）、详情抽屉（状态切换/进度滑杆/子任务勾选/正文编辑/动态时间线）、合集墙（进度环+归档）+ 合集详情页。
@@ -70,3 +76,5 @@
 **M1（2026-07-10）**：工作台的地基搭好了，能跑起来了。现在打开就能看到深色/浅色两套界面、左边导航、一个带演示数据的仪表盘，右上角还能一键切主题。你在 Obsidian 里改 vault 文件夹里的任何一篇，工作台几秒内就会自动跟着变。真正的任务、日报这些功能从下一步开始逐个上线。
 
 **M2（2026-07-10）**：任务管理能用了。你可以新建任务、在看板上拖着卡片换状态、点开任务改进度和勾子任务，每一步系统都会自动记一条「动态」——这些动态以后就是自动生成日报的素材。相关任务还能归到「合集」里，合集会自动算总进度。所有改动都实时写进 vault 里的 Markdown 文件，随时能用 Obsidian 打开或粘进飞书。
+
+**M3（2026-07-10）**：日报周报能一键生成了。点「生成日报」，系统就把你当天所有任务动态自动分成"完成/推进/受阻"填进日报，明日计划还会帮你预填没做完的重点任务；你改两笔、点定稿，再点「复制为 Markdown」就能直接粘进飞书。周报会自动统计本周完成数和各合集的投入占比，还配了两张图。全程不用手动抄一个字。
