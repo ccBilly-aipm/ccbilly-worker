@@ -44,9 +44,15 @@
 | M6-2 | 命令面板 Cmd+K | M6 | ✅ 已完成 | command-palette（M1 建成，M6 验收：全局搜索+快捷动作） |
 | M6-3 | 动效 + 空状态三件套全量 + 无障碍 + Lighthouse | M6 | ✅ 已完成 | 全站；桌面 Lighthouse 99/96，reduced-motion+移动端 E2E |
 | M6-4 | README + DELIVERY_REPORT 收尾 | M6 | ✅ 已完成 | README.md、docs/DELIVERY_REPORT.md |
-| VIS-1 | Part B 正式视觉素材（Logo/主题背景/空状态/404） | Visual | 🔄 进行中@codex-image | `public/assets/` 9 张 GPT Image 素材 |
+| VIS-1 | Part B 正式视觉素材（Logo/主题背景/空状态/404） | Visual | ✅ 已完成 | `public/assets/` 9 张 GPT Image 素材 |
 
 ## 4. 协作日志
+
+### 2026-07-10 16:38 [codex-image]
+- 完成：按需求文档 Part B 交付 9 张正式视觉素材：App 图标、横版字标、暗/亮主题背景、4 张空状态插画与 404 插画；全部使用 GPT Image 生成并按规定文件名保存到 `public/assets/`。
+- 核验：9 个项目文件与 Codex 生成原件逐一 SHA-256 匹配；方图为 1:1，横图为 16:9；全部是不透明 PNG，因此本批无需切换 `gpt-image-1.5` 透明背景路径。
+- 验证：`pnpm verify` 全绿（Lint、TypeScript、55 单测、Next.js 生产构建）。
+- 阻塞：无；工作区另有不属于本任务的 `next.config.mjs` 并发改动，未修改、未暂存。
 
 ### 2026-07-10 15:10 [claude-main]
 - 完成：**M6 打磨 + 全部里程碑交付**。仪表盘「今日轨道」签名环图（完成率弧 + 任务光点按状态着色 + 缓慢旋转 + 点击直达 + reduced-motion 暂停）、近 14 天趋势/合集分布（懒加载 Recharts）/年度活动热力图、数字 count-up；命令面板 Cmd+K 验收；空状态三件套全站；实机截图确认明暗双主题质感。Lighthouse：**桌面 Performance 99 / Accessibility 96**（移动 87 为字体 swap 实验室惩罚，已记 §7）。README 补功能一览、写 DELIVERY_REPORT。
