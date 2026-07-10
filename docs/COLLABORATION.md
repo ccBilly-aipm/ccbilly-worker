@@ -40,12 +40,18 @@
 | M5-1 | 应用中心（link/iframe 降级/proxy 骨架 + 演示） | M5 | ✅ 已完成 | app-service、apps-client（iframe 预检+超时降级）、/api/proxy/[appId] |
 | M5-2 | 后台管理全面板（概览/Git/应用 CRUD/Skill 目录/个性化/导出） | M5 | ✅ 已完成 | admin 布局+口令门、6 个面板、settings/export API |
 | M5-3 | Git 同步面板（simple-git） | M5 | ✅ 已完成 | git-panel、/api/git/commit、/api/git/sync（永不 force push） |
-| M6-1 | 仪表盘「今日轨道」签名元素 + 趋势/分布/热力图 | M6 | 🔄 进行中@claude-main | features/dashboard |
-| M6-2 | 命令面板 Cmd+K | M6 | ⬜ 待认领 | components 命令面板 |
-| M6-3 | 动效 + 空状态三件套全量 + 无障碍 + Lighthouse | M6 | ⬜ 待认领 | 全站 |
-| M6-4 | README + DELIVERY_REPORT 收尾 | M6 | ⬜ 待认领 | README.md、docs/DELIVERY_REPORT.md |
+| M6-1 | 仪表盘「今日轨道」签名元素 + 趋势/分布/热力图 | M6 | ✅ 已完成 | today-orbit、dashboard-charts、activity-heatmap、count-up、stats |
+| M6-2 | 命令面板 Cmd+K | M6 | ✅ 已完成 | command-palette（M1 建成，M6 验收：全局搜索+快捷动作） |
+| M6-3 | 动效 + 空状态三件套全量 + 无障碍 + Lighthouse | M6 | ✅ 已完成 | 全站；桌面 Lighthouse 99/96，reduced-motion+移动端 E2E |
+| M6-4 | README + DELIVERY_REPORT 收尾 | M6 | ✅ 已完成 | README.md、docs/DELIVERY_REPORT.md |
 
 ## 4. 协作日志
+
+### 2026-07-10 15:10 [claude-main]
+- 完成：**M6 打磨 + 全部里程碑交付**。仪表盘「今日轨道」签名环图（完成率弧 + 任务光点按状态着色 + 缓慢旋转 + 点击直达 + reduced-motion 暂停）、近 14 天趋势/合集分布（懒加载 Recharts）/年度活动热力图、数字 count-up；命令面板 Cmd+K 验收；空状态三件套全站；实机截图确认明暗双主题质感。Lighthouse：**桌面 Performance 99 / Accessibility 96**（移动 87 为字体 swap 实验室惩罚，已记 §7）。README 补功能一览、写 DELIVERY_REPORT。
+- 变更：`pnpm verify` 全绿（55 单测）；**17 E2E 全通过**（新增 orbit 渲染、reduced-motion 禁用动画、移动端底部导航+子任务勾选）。真实截图零 console 错误。
+- 交付状态：M1–M6 全部 ✅，验收清单 8 项全部处理完毕。收尾：DELIVERY_REPORT + 最终 commit。
+- 阻塞：无（Git 远端待 B哥 配置后 push 一次）。
 
 ### 2026-07-10 14:50 [claude-main]
 - 完成：**M5 接入与后台全部交付**。应用中心（link 新标签 / iframe 内嵌+服务端 X-Frame-Options/CSP 预检+8s 加载超时→优雅降级为提示卡片+新窗口打开 / proxy 反向代理骨架 + 演示）；后台管理（ADMIN_PASSCODE + httpOnly cookie 口令门 + 6 面板：数据概览/Git 同步/应用 CRUD/Skill 目录配置/个性化/导出 vault zip）；Git 同步面板（simple-git，快速提交 + pull --rebase 后 push，冲突列文件提示手动解决，**永不 force push**）。仪表盘问候改为可配置称呼 + 按时段。
@@ -94,3 +100,5 @@
 **M4（2026-07-10）**：能在工作台里直接管理你的 Claude Code Skill 了。它会扫出你 ~/.claude/skills 里所有 skill，点开能看能改，改之前自动备份、绝不会丢你的 allowed-tools 这些配置，改完对 Claude Code 立刻生效。另外「个人技能树」能看你各领域的等级雷达图、一键记录"今天学了什么"；知识库能浏览你 Obsidian 笔记并点双链跳转。安全上做了最严的防护，任何想跳出目录读别的文件的操作都会被挡下。
 
 **M5（2026-07-10）**：能接开源应用、后台也齐活了。在后台「应用管理」登记一个开源应用（比如 Excalidraw 白板），它就出现在应用中心，能新标签打开或直接内嵌在工作台里用；碰上不让内嵌的网站会自动给你一个"新窗口打开"的按钮，不会白屏。后台还能一键 Git 提交/同步（绝不会强推坏你数据）、改称呼和默认主题、把整个 vault 打包成 zip 下载备份。后台用口令保护，防止误点。
+
+**M6（2026-07-10）· 全部完工**：最后把仪表盘做惊艳了——正中一个缓慢旋转的「今日轨道」环，中间是今日完成率，任务变成轨道上按状态着色的光点，点一下直接跳到那个任务；下面还有近两周完成趋势、合集分布和一整年的活动热力图。全站动效、空状态、无障碍都打磨到位，桌面性能跑分 99、无障碍 96。到这里 6 个阶段全部交付，你可以正式开始用了。详见 docs/DELIVERY_REPORT.md。

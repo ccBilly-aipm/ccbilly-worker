@@ -15,8 +15,9 @@ test("dashboard loads and greets B哥", async ({ page }) => {
 
   await page.goto("/");
   await expect(page.getByText("B哥")).toBeVisible();
-  // sidebar nav present
-  await expect(page.getByRole("link", { name: "仪表盘" })).toBeVisible();
+  // sidebar nav present (both desktop sidebar and mobile bottom nav have this
+  // link; assert at least one is visible)
+  await expect(page.getByRole("link", { name: "仪表盘" }).first()).toBeVisible();
 
   // no console errors on first paint
   expect(errors, `console errors: ${errors.join("\n")}`).toHaveLength(0);
