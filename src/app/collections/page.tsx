@@ -1,5 +1,7 @@
-import { ComingSoon } from "@/components/ui/coming-soon";
+import { CollectionsClient } from "@/features/collections/collections-client";
+
+export const dynamic = "force-dynamic";
 
 export default function CollectionsPage() {
-  return <ComingSoon title="合集" milestone="M2" kind="tasks" />;
+  return <CollectionsClient />;
 }

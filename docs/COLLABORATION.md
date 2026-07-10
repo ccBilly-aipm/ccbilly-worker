@@ -27,12 +27,12 @@
 | M1-2 | vault 数据层：zod schema + 原子读写 + gray-matter round-trip | M1 | ✅ 已完成 | src/lib/schema、src/lib/vault、markdown helpers |
 | M1-3 | SQLite 索引 + chokidar 监听 + 重建 + 待修复机制 | M1 | ✅ 已完成 | src/lib/index（db/indexer/queries/watcher/bootstrap） |
 | M1-4 | seed 脚本 + 数据层单元测试 | M1 | ✅ 已完成 | scripts/seed.ts、tests/unit（26）、tests/e2e（4） |
-| M2-1 | 任务 CRUD + Route Handlers | M2 | 🔄 进行中@claude-main | /api/tasks、features/tasks |
-| M2-2 | 列表视图（筛选/排序/搜索） | M2 | ⬜ 待认领 | features/tasks 列表 |
-| M2-3 | 看板视图（拖拽改 status + 追加动态） | M2 | ⬜ 待认领 | features/tasks 看板 |
-| M2-4 | 任务详情抽屉（编辑器/子任务/进度/时间线） | M2 | ⬜ 待认领 | features/tasks 抽屉 |
-| M2-5 | 合集页（进度环 + 归档） | M2 | ⬜ 待认领 | features/collections |
-| M3-1 | 日报聚合/编辑/定稿/日历/复制 Markdown | M3 | ⬜ 待认领 | features/reports 日报 |
+| M2-1 | 任务 CRUD + Route Handlers | M2 | ✅ 已完成 | task-service、collection-service、/api/tasks、/api/collections |
+| M2-2 | 列表视图（筛选/排序/搜索） | M2 | ✅ 已完成 | task-list、tasks-client 筛选 |
+| M2-3 | 看板视图（拖拽改 status + 追加动态） | M2 | ✅ 已完成 | kanban-board（dnd-kit）、task-card |
+| M2-4 | 任务详情抽屉（编辑器/子任务/进度/时间线） | M2 | ✅ 已完成 | task-drawer |
+| M2-5 | 合集页（进度环 + 归档） | M2 | ✅ 已完成 | collections-client、进度环、合集详情页 |
+| M3-1 | 日报聚合/编辑/定稿/日历/复制 Markdown | M3 | 🔄 进行中@claude-main | features/reports 日报 |
 | M3-2 | 周报聚合/图表/编辑/定稿/导出 | M3 | ⬜ 待认领 | features/reports 周报 |
 | M4-1 | Claude Code Skills 扫描/查看/编辑（备份）+ 白名单防穿越 | M4 | ⬜ 待认领 | src/lib/skills、features/skills TabA |
 | M4-2 | 个人技能树（矩阵/雷达图/学习记录） | M4 | ⬜ 待认领 | features/skills TabB |
@@ -46,6 +46,12 @@
 | M6-4 | README + DELIVERY_REPORT 收尾 | M6 | ⬜ 待认领 | README.md、docs/DELIVERY_REPORT.md |
 
 ## 4. 协作日志
+
+### 2026-07-10 14:05 [claude-main]
+- 完成：**M2 任务系统全部交付**。任务/合集 service（写 .md→追加动态→重建索引）、Route Handlers、列表视图（筛选/排序/搜索）、看板（dnd-kit 拖拽改 status 并自动记动态）、详情抽屉（状态切换/进度滑杆/子任务勾选/正文编辑/动态时间线）、合集墙（进度环+归档）+ 合集详情页。
+- 变更：`pnpm verify` 全绿（32 单测 + build）；7 个 E2E 全通过，覆盖「新建→改状态→动态日志→磁盘 .md 一致」与「Obsidian 外部写文件→UI 自动刷新」两大验收项。修复 tsbuildinfo 误提交（已 gitignore）。
+- 下一步：M3-1 日报聚合（完成/推进/新建/受阻分类，复制为 Markdown）。
+- 阻塞：无（Git 远端仍未配置，本地提交照常）。
 
 ### 2026-07-10 13:40 [claude-main]
 - 完成：Bootstrap + **M1 地基全部交付**。脚手架、明暗主题壳（无 FOUC）、Markdown-first 数据层（zod/原子写/gray-matter round-trip/wikilink/section helpers/待修复机制）、SQLite 索引 + chokidar 监听 + 重建、命令面板与导航壳、seed（39 条）。
@@ -62,3 +68,5 @@
 ## 5. 给 B哥 的人话进度
 
 **M1（2026-07-10）**：工作台的地基搭好了，能跑起来了。现在打开就能看到深色/浅色两套界面、左边导航、一个带演示数据的仪表盘，右上角还能一键切主题。你在 Obsidian 里改 vault 文件夹里的任何一篇，工作台几秒内就会自动跟着变。真正的任务、日报这些功能从下一步开始逐个上线。
+
+**M2（2026-07-10）**：任务管理能用了。你可以新建任务、在看板上拖着卡片换状态、点开任务改进度和勾子任务，每一步系统都会自动记一条「动态」——这些动态以后就是自动生成日报的素材。相关任务还能归到「合集」里，合集会自动算总进度。所有改动都实时写进 vault 里的 Markdown 文件，随时能用 Obsidian 打开或粘进飞书。

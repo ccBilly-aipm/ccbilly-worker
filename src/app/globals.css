@@ -159,6 +159,27 @@
       0 0 24px rgba(34, 211, 238, 0.15);
   }
 
+  .input {
+    width: 100%;
+    border-radius: 10px;
+    background: rgb(var(--glass-bg) / 0.08);
+    border: 1px solid rgb(var(--border) / 0.12);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: rgb(var(--fg));
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .input::placeholder {
+    color: rgb(var(--fg-muted));
+  }
+  .input:focus {
+    border-color: rgb(var(--aurora-cyan) / 0.5);
+  }
+  select.input option {
+    color: #111;
+  }
+
   .text-brand-gradient {
     background: linear-gradient(
       135deg,

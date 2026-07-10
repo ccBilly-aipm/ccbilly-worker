@@ -6,6 +6,7 @@ node_modules/
 .next/
 out/
 next-env.d.ts
+*.tsbuildinfo
 
 # local index cache (rebuildable from vault/ — never commit)
 cache/
