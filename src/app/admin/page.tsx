@@ -6,12 +6,8 @@ import { ReindexButton } from "@/features/admin/reindex-button";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Admin data overview (spec §6.8 ①). Full admin panels (git / apps CRUD / skill
- * dirs / personalization / export) arrive in M5; M1 ships the data overview +
- * rebuild-index + repair list so the foundation is observable.
- */
-export default async function AdminPage() {
+/** Admin data overview (spec §6.8 ①): counts, index status, rebuild, repair list. */
+export default async function AdminOverviewPage() {
   await ensureIndexReady();
   const counts = countsByType();
   const broken = listBroken();
@@ -28,9 +24,7 @@ export default async function AdminPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <h1 className="font-display text-2xl font-semibold text-fg">后台管理</h1>
-
+    <div className="space-y-4">
       <GlassCard>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-lg font-medium text-fg">数据概览</h2>
@@ -38,10 +32,7 @@ export default async function AdminPage() {
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {rows.map(([label, n]) => (
-            <div
-              key={label}
-              className="rounded-xl bg-[rgb(var(--glass-bg)/0.06)] p-3"
-            >
+            <div key={label} className="rounded-xl bg-[rgb(var(--glass-bg)/0.06)] p-3">
               <div className="font-display text-2xl font-semibold text-fg tabular">
                 {n}
               </div>
@@ -77,10 +68,6 @@ export default async function AdminPage() {
           </ul>
         )}
       </GlassCard>
-
-      <p className="text-center text-xs text-muted">
-        Git 同步 / 应用管理 / Skill 目录 / 个性化 / 数据导出 面板将在 M5 上线。
-      </p>
     </div>
   );
 }

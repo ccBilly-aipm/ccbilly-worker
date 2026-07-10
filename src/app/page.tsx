@@ -2,6 +2,7 @@ import { ensureIndexReady } from "@/lib/index/bootstrap";
 import { countsByType, listByType } from "@/lib/index/queries";
 import { GlassCard } from "@/components/ui/glass-card";
 import { localDateKey } from "@/lib/utils/date";
+import { readSettings } from "@/lib/admin/settings";
 import Link from "next/link";
 import { ListTodo, FileText, Sparkles, AppWindow } from "lucide-react";
 
@@ -9,12 +10,22 @@ export const dynamic = "force-dynamic";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
+function greeting(h: number): string {
+  if (h < 5) return "夜深了";
+  if (h < 11) return "早上好";
+  if (h < 14) return "中午好";
+  if (h < 18) return "下午好";
+  return "晚上好";
+}
+
 export default async function DashboardPage() {
   await ensureIndexReady();
   const counts = countsByType();
   const tasks = listByType("task");
+  const settings = readSettings();
   const today = new Date();
   const dateLabel = `${localDateKey(today)} 星期${WEEKDAYS[today.getDay()]}`;
+  const hello = greeting(today.getHours());
 
   const active = tasks.filter(
     (t) => t.data.status !== "done" && t.data.status !== "archived",
@@ -32,7 +43,7 @@ export default async function DashboardPage() {
     <div className="mx-auto max-w-6xl space-y-6">
       <header className="space-y-1">
         <h1 className="font-display text-2xl font-semibold text-fg md:text-3xl">
-          晚上好，<span className="text-brand-gradient">B哥</span>
+          {hello}，<span className="text-brand-gradient">{settings.displayName}</span>
         </h1>
         <p className="text-sm text-muted tabular">{dateLabel}</p>
       </header>

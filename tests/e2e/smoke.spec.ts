@@ -44,14 +44,15 @@ test("theme toggle switches html class without console errors", async ({
   expect(errors, `console errors: ${errors.join("\n")}`).toHaveLength(0);
 });
 
-test("admin overview shows indexed entries and no repair items", async ({
-  page,
-}) => {
+test("admin requires passcode, then shows overview", async ({ page }) => {
   await page.goto("/admin");
-  await expect(
-    page.getByRole("heading", { name: "数据概览" }),
-  ).toBeVisible();
-  // repair list should be empty for a clean seed
+  // gated by ADMIN_PASSCODE (set to e2e-pass in the test server)
+  await expect(page.getByPlaceholder("ADMIN_PASSCODE")).toBeVisible();
+  await page.getByPlaceholder("ADMIN_PASSCODE").fill("e2e-pass");
+  await page.getByRole("button", { name: "进入" }).click();
+  await expect(page.getByRole("heading", { name: "数据概览" })).toBeVisible({
+    timeout: 10_000,
+  });
   await expect(page.getByText("待修复文件 · 0")).toBeVisible();
 });
 

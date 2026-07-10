@@ -50,6 +50,7 @@ export default defineConfig({
       CCBILLY_VAULT_DIR: VAULT,
       CCBILLY_CACHE_DIR: CACHE,
       CCBILLY_SKILLS_TEST_ROOT: SKILLS,
+      ADMIN_PASSCODE: "e2e-pass",
     },
   },
 });

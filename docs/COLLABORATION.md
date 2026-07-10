@@ -37,15 +37,21 @@
 | M4-1 | Claude Code Skills 扫描/查看/编辑（备份）+ 白名单防穿越 | M4 | ✅ 已完成 | skills/paths（红线守卫）、skill-service、claude-skills-tab、skill-editor |
 | M4-2 | 个人技能树（矩阵/雷达图/学习记录） | M4 | ✅ 已完成 | skill-tree-service、skill-tree-tab、skill-radar、skill-detail-drawer |
 | M4-3 | 知识库轻量浏览 + 双链 + 反链 | M4 | ✅ 已完成 | knowledge-service、知识库列表/详情页、render（wikilink→link） |
-| M5-1 | 应用中心（link/iframe 降级/proxy 骨架 + 演示） | M5 | 🔄 进行中@claude-main | features/apps、/api/proxy |
-| M5-2 | 后台管理全面板（概览/Git/应用 CRUD/Skill 目录/个性化/导出） | M5 | ⬜ 待认领 | features/admin |
-| M5-3 | Git 同步面板（simple-git） | M5 | ⬜ 待认领 | src/lib/git、features/admin |
-| M6-1 | 仪表盘「今日轨道」签名元素 + 趋势/分布/热力图 | M6 | ⬜ 待认领 | features/dashboard |
+| M5-1 | 应用中心（link/iframe 降级/proxy 骨架 + 演示） | M5 | ✅ 已完成 | app-service、apps-client（iframe 预检+超时降级）、/api/proxy/[appId] |
+| M5-2 | 后台管理全面板（概览/Git/应用 CRUD/Skill 目录/个性化/导出） | M5 | ✅ 已完成 | admin 布局+口令门、6 个面板、settings/export API |
+| M5-3 | Git 同步面板（simple-git） | M5 | ✅ 已完成 | git-panel、/api/git/commit、/api/git/sync（永不 force push） |
+| M6-1 | 仪表盘「今日轨道」签名元素 + 趋势/分布/热力图 | M6 | 🔄 进行中@claude-main | features/dashboard |
 | M6-2 | 命令面板 Cmd+K | M6 | ⬜ 待认领 | components 命令面板 |
 | M6-3 | 动效 + 空状态三件套全量 + 无障碍 + Lighthouse | M6 | ⬜ 待认领 | 全站 |
 | M6-4 | README + DELIVERY_REPORT 收尾 | M6 | ⬜ 待认领 | README.md、docs/DELIVERY_REPORT.md |
 
 ## 4. 协作日志
+
+### 2026-07-10 14:50 [claude-main]
+- 完成：**M5 接入与后台全部交付**。应用中心（link 新标签 / iframe 内嵌+服务端 X-Frame-Options/CSP 预检+8s 加载超时→优雅降级为提示卡片+新窗口打开 / proxy 反向代理骨架 + 演示）；后台管理（ADMIN_PASSCODE + httpOnly cookie 口令门 + 6 面板：数据概览/Git 同步/应用 CRUD/Skill 目录配置/个性化/导出 vault zip）；Git 同步面板（simple-git，快速提交 + pull --rebase 后 push，冲突列文件提示手动解决，**永不 force push**）。仪表盘问候改为可配置称呼 + 按时段。
+- 变更：`pnpm verify` 全绿（55 单测）；14 E2E 全通过，含应用登记→上架、iframe 被 github.com 拒绝→降级、后台口令门、Git 面板。
+- 下一步：M6 打磨 — 仪表盘「今日轨道」签名元素 + 趋势/分布/热力图、命令面板增强、动效与空状态全量、无障碍/Lighthouse、README/交付报告收尾。
+- 阻塞：无。
 
 ### 2026-07-10 14:35 [claude-main]
 - 完成：**M4 Skill 双模块 + 知识库全部交付**。Tab A（真实 SKILL.md 扫描/查看/编辑，编辑前备份到该 root 的 .trash，保留 allowed-tools 等未知字段，附属文件树，个人级覆盖项目级标注，新建/删除按 ADR-006 占位禁用）；Tab B 个人技能树（分类矩阵卡墙 + 雷达图 + 学习记录一键追加 + 反链）；知识库（列表/详情、Markdown 渲染、[[双链]]→可点链接、反链面板）。**红线守卫**：所有 skill FS 操作过白名单 + 防 ../ / 绝对路径 / 符号链接穿越。
@@ -86,3 +92,5 @@
 **M3（2026-07-10）**：日报周报能一键生成了。点「生成日报」，系统就把你当天所有任务动态自动分成"完成/推进/受阻"填进日报，明日计划还会帮你预填没做完的重点任务；你改两笔、点定稿，再点「复制为 Markdown」就能直接粘进飞书。周报会自动统计本周完成数和各合集的投入占比，还配了两张图。全程不用手动抄一个字。
 
 **M4（2026-07-10）**：能在工作台里直接管理你的 Claude Code Skill 了。它会扫出你 ~/.claude/skills 里所有 skill，点开能看能改，改之前自动备份、绝不会丢你的 allowed-tools 这些配置，改完对 Claude Code 立刻生效。另外「个人技能树」能看你各领域的等级雷达图、一键记录"今天学了什么"；知识库能浏览你 Obsidian 笔记并点双链跳转。安全上做了最严的防护，任何想跳出目录读别的文件的操作都会被挡下。
+
+**M5（2026-07-10）**：能接开源应用、后台也齐活了。在后台「应用管理」登记一个开源应用（比如 Excalidraw 白板），它就出现在应用中心，能新标签打开或直接内嵌在工作台里用；碰上不让内嵌的网站会自动给你一个"新窗口打开"的按钮，不会白屏。后台还能一键 Git 提交/同步（绝不会强推坏你数据）、改称呼和默认主题、把整个 vault 打包成 zip 下载备份。后台用口令保护，防止误点。
