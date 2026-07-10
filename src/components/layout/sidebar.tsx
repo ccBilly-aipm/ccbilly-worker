@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { PanelLeftClose, PanelLeft } from "lucide-react";
@@ -26,16 +27,27 @@ export function Sidebar() {
         "transition-[width] duration-200 ease-space",
       )}
     >
-      <div className="mb-4 flex items-center gap-2 px-2 py-3">
-        <div className="grid h-8 w-8 place-items-center rounded-xl btn-brand text-sm font-bold font-display">
-          cB
-        </div>
+      <Link
+        href="/"
+        className="mb-4 flex items-center gap-2.5 px-2 py-3"
+        aria-label="ccBilly 首页"
+      >
+        {/* app-icon is a square dark-space image; a rounded container makes its
+            black background read as an app icon, not a stray black block. */}
+        <Image
+          src="/assets/app-icon.png"
+          alt="ccBilly"
+          width={34}
+          height={34}
+          priority
+          className="shrink-0 rounded-xl border border-[rgb(var(--border)/0.14)] shadow-[0_0_16px_rgba(34,211,238,0.2)]"
+        />
         {!collapsed && (
           <span className="font-display text-lg font-semibold text-brand-gradient">
             ccBilly
           </span>
         )}
-      </div>
+      </Link>
 
       <nav className="flex flex-1 flex-col gap-1">
         {NAV_ITEMS.map((item) => {

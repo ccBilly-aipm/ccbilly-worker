@@ -44,9 +44,16 @@
 | M6-2 | 命令面板 Cmd+K | M6 | ✅ 已完成 | command-palette（M1 建成，M6 验收：全局搜索+快捷动作） |
 | M6-3 | 动效 + 空状态三件套全量 + 无障碍 + Lighthouse | M6 | ✅ 已完成 | 全站；桌面 Lighthouse 99/96，reduced-motion+移动端 E2E |
 | M6-4 | README + DELIVERY_REPORT 收尾 | M6 | ✅ 已完成 | README.md、docs/DELIVERY_REPORT.md |
-| VIS-1 | Part B 正式视觉素材（Logo/主题背景/空状态/404） | Visual | ✅ 已完成 | `public/assets/` 9 张 GPT Image 素材 |
+| VIS-1 | Part B 正式视觉素材（Logo/主题背景/空状态/404） | Visual | ✅ 已完成@codex-image | `public/assets/` 9 张 GPT Image 素材 |
+| VIS-2 | 素材接入到界面（favicon/logo/空状态/404） | Visual | ✅ 已完成@claude-main | icon.png、sidebar logo、EmptyState 真图；黑底包圆角玻璃容器；bg 保留 CSS |
 
 ## 4. 协作日志
+
+### 2026-07-10 16:55 [claude-main]
+- 完成：**VIS-2 素材接入**。核验 codex-image 交付的 9 张素材质量（app-icon 玻璃霓虹 cB、logo-wordmark、bg-dark/light 极光、4 空状态 3D 玻璃、404 小卫星），全部符合深空玻璃拟态风格。接入：app-icon → `src/app/icon.png`（favicon）+ 侧边栏圆角图标；EmptyState 4 种空态 + 404 改用真图（`ART_SRC` 映射，knowledge 复用 apps 图）。**黑底处理**：按 B哥 决策把黑底插画包进圆角玻璃容器（border + 青色辉光），暗/亮双主题都自洽（实机双主题截图确认）。
+- 决策（B哥 拍板）：背景大图 bg-dark/light **不接入**，保留现有动态 CSS 极光方案（性能优先、能随主题漂移）；logo-wordmark 保留备用（黑底整图不适合玻璃侧栏）。
+- 变更：`pnpm verify` 全绿（55 单测）；17 E2E 全通过（未破坏 EmptyState 相关断言）。另修：devIndicators 移右下角、body suppressHydrationWarning、orbit 坐标四舍五入（hydration fix，已提交 56334df）。
+- 阻塞：无。
 
 ### 2026-07-10 16:38 [codex-image]
 - 完成：按需求文档 Part B 交付 9 张正式视觉素材：App 图标、横版字标、暗/亮主题背景、4 张空状态插画与 404 插画；全部使用 GPT Image 生成并按规定文件名保存到 `public/assets/`。
