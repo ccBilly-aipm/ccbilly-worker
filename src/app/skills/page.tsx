@@ -1,5 +1,7 @@
-import { ComingSoon } from "@/components/ui/coming-soon";
+import { SkillsTabs } from "@/features/skills/skills-tabs";
+
+export const dynamic = "force-dynamic";
 
 export default function SkillsPage() {
-  return <ComingSoon title="Skill 管理" milestone="M4" kind="skills" />;
+  return <SkillsTabs />;
 }
