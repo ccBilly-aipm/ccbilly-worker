@@ -22,12 +22,12 @@
 
 | ID | 任务 | 里程碑 | 状态 | 产出 |
 |---|---|---|---|---|
-| B0 | 引导：文档体系 + 脚手架 + 验证基建 + git init | Bootstrap | 🔄 进行中@claude-main | 四份文档、Next.js 项目、pnpm verify、首次 commit |
-| M1-1 | design tokens + 明暗主题壳（无 FOUC） | M1 | ⬜ 待认领 | globals.css、theme provider、layout shell |
-| M1-2 | vault 数据层：zod schema + 原子读写 + gray-matter round-trip | M1 | ⬜ 待认领 | src/lib/schema、src/lib/vault |
-| M1-3 | SQLite 索引 + chokidar 监听 + 重建 + 待修复机制 | M1 | ⬜ 待认领 | src/lib/index |
-| M1-4 | seed 脚本 + 数据层单元测试 | M1 | ⬜ 待认领 | scripts/seed.ts、tests/unit |
-| M2-1 | 任务 CRUD + Route Handlers | M2 | ⬜ 待认领 | /api/tasks、features/tasks |
+| B0 | 引导：文档体系 + 脚手架 + 验证基建 + git init | Bootstrap | ✅ 已完成 | 四份文档、Next.js 项目、pnpm verify、首次 commit 4b62618 |
+| M1-1 | design tokens + 明暗主题壳（无 FOUC） | M1 | ✅ 已完成 | globals.css、theme provider、layout shell、space-background |
+| M1-2 | vault 数据层：zod schema + 原子读写 + gray-matter round-trip | M1 | ✅ 已完成 | src/lib/schema、src/lib/vault、markdown helpers |
+| M1-3 | SQLite 索引 + chokidar 监听 + 重建 + 待修复机制 | M1 | ✅ 已完成 | src/lib/index（db/indexer/queries/watcher/bootstrap） |
+| M1-4 | seed 脚本 + 数据层单元测试 | M1 | ✅ 已完成 | scripts/seed.ts、tests/unit（26）、tests/e2e（4） |
+| M2-1 | 任务 CRUD + Route Handlers | M2 | 🔄 进行中@claude-main | /api/tasks、features/tasks |
 | M2-2 | 列表视图（筛选/排序/搜索） | M2 | ⬜ 待认领 | features/tasks 列表 |
 | M2-3 | 看板视图（拖拽改 status + 追加动态） | M2 | ⬜ 待认领 | features/tasks 看板 |
 | M2-4 | 任务详情抽屉（编辑器/子任务/进度/时间线） | M2 | ⬜ 待认领 | features/tasks 抽屉 |
@@ -47,6 +47,12 @@
 
 ## 4. 协作日志
 
+### 2026-07-10 13:40 [claude-main]
+- 完成：Bootstrap + **M1 地基全部交付**。脚手架、明暗主题壳（无 FOUC）、Markdown-first 数据层（zod/原子写/gray-matter round-trip/wikilink/section helpers/待修复机制）、SQLite 索引 + chokidar 监听 + 重建、命令面板与导航壳、seed（39 条）。
+- 变更：`pnpm verify` 全绿；26 单测 + 4 E2E 通过；首次 commit `4b62618`（127 files）。修复真实 bug：YAML ISO 日期被解析成 Date，schema 现强制归一为 string。
+- 下一步：M2-1 任务 CRUD + Route Handlers → 列表 → 看板拖拽 → 详情抽屉 → 合集。
+- 阻塞：无 Git 远端（不阻塞，本地已提交；待 B哥 配置远端后 push）。
+
 ### 2026-07-10 13:06 [claude-main]
 - 完成：现状盘点（当前目录仅需求原文，无代码，M1–M6 全部从零）；读毕规格全文。
 - 变更：创建 docs/HANDBOOK.md、docs/COLLABORATION.md（本文件）；建立 ADR-001~010、任务看板 B0/M1–M6。
@@ -55,4 +61,4 @@
 
 ## 5. 给 B哥 的人话进度
 
-_（每个里程碑一段，≤5 句，零术语，"现在能干什么了"句式。收尾汇总到 DELIVERY_REPORT.md。）_
+**M1（2026-07-10）**：工作台的地基搭好了，能跑起来了。现在打开就能看到深色/浅色两套界面、左边导航、一个带演示数据的仪表盘，右上角还能一键切主题。你在 Obsidian 里改 vault 文件夹里的任何一篇，工作台几秒内就会自动跟着变。真正的任务、日报这些功能从下一步开始逐个上线。
