@@ -33,3 +33,6 @@ coverage/
 ccBilly工作台-ClaudeCode开发提示词.md
 
 # NOTE: vault/ itself MUST be committed — it is the data + backup carrier.
+
+# migration backups (timestamped vault zips; local only)
+backups/
