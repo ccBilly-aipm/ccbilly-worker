@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
+import { PresetSwitcher } from "@/features/admin/preset-switcher";
 
 interface Settings {
   displayName: string;
@@ -44,6 +45,8 @@ export function SettingsPanel() {
 
   return (
     <div className="space-y-4">
+      <PresetSwitcher />
+
       <GlassCard className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-lg font-medium text-fg">个性化</h2>

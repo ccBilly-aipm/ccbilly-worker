@@ -5,15 +5,17 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { PanelLeftClose, PanelLeft } from "lucide-react";
-import { NAV_ITEMS } from "@/components/layout/nav-config";
+import { navForPreset } from "@/components/layout/nav-config";
+import type { PresetId } from "@/lib/preset/presets";
 import { cn } from "@/lib/utils/cn";
 import { motion } from "framer-motion";
 
 /** Glass sidebar (spec §7): icon+label, collapsible to icons only. Desktop only;
- *  mobile uses the bottom tab bar. */
-export function Sidebar() {
+ *  mobile uses the bottom tab bar. Nav items are filtered by the active preset. */
+export function Sidebar({ preset }: { preset: PresetId }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const items = navForPreset(preset);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -50,7 +52,7 @@ export function Sidebar() {
       </Link>
 
       <nav className="flex flex-1 flex-col gap-1">
-        {NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const active = isActive(item.href);
           const Icon = item.icon;
           return (

@@ -8,6 +8,7 @@ import { Topbar } from "@/components/layout/topbar";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { CommandPalette } from "@/components/command/command-palette";
 import { PageTransition } from "@/components/layout/page-transition";
+import { readPreset } from "@/lib/preset/preset-service";
 
 const display = Space_Grotesk({
   subsets: ["latin"],
@@ -39,11 +40,15 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Read the active preset server-side (ADR-020) and pass its id to the client
+  // nav so only the modules for this persona show. Passing the id (a string),
+  // not the filtered items, keeps icon components out of the RSC prop boundary.
+  const { active: preset } = readPreset();
   return (
     <html
       lang="zh-CN"
@@ -57,7 +62,7 @@ export default function RootLayout({
         <ThemeProvider>
           <SpaceBackground />
           <div className="flex min-h-screen">
-            <Sidebar />
+            <Sidebar preset={preset} />
             <div className="flex min-w-0 flex-1 flex-col">
               <Topbar />
               <main className="flex-1 px-4 pb-24 pt-2 md:px-6 md:pb-8">
@@ -65,7 +70,7 @@ export default function RootLayout({
               </main>
             </div>
           </div>
-          <MobileNav />
+          <MobileNav preset={preset} />
           <CommandPalette />
         </ThemeProvider>
       </body>

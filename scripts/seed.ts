@@ -9,6 +9,8 @@ import path from "node:path";
 import { vaultDir, vaultTypeDir } from "../src/lib/config";
 import { writeEntry } from "../src/lib/vault/repo";
 import { rebuildIndex } from "../src/lib/index/indexer";
+import { migrateVault } from "../src/lib/vault/migrate";
+import { writePreset } from "../src/lib/preset/preset-service";
 import { localISO, localDateKey, isoWeekKey, isoWeekRange } from "../src/lib/utils/date";
 
 function daysAgo(n: number): Date {
@@ -280,6 +282,10 @@ async function seedKnowledge() {
 
 async function main() {
   console.log(`seeding demo data into ${vaultDir()} …`);
+  // V2: ensure the new vault dirs exist and mark onboarding done (default 双修)
+  // so demo/E2E runs land on the dashboard, not the onboarding screen.
+  migrateVault();
+  await writePreset({ active: "both", onboarded: true });
   const collections = await seedCollections();
   await seedTasks();
   await seedDailies();

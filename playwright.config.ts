@@ -21,6 +21,14 @@ const SKILLS = path.join(E2E_ROOT, "skills");
 // fresh isolated dirs each run
 fs.rmSync(E2E_ROOT, { recursive: true, force: true });
 for (const d of [VAULT, CACHE, SKILLS]) fs.mkdirSync(d, { recursive: true });
+// V2: mark onboarding done in the E2E vault so tests land on the dashboard, not
+// the onboarding screen. The dedicated onboarding E2E deletes this to test the
+// first-run flow.
+fs.mkdirSync(path.join(VAULT, "config"), { recursive: true });
+fs.writeFileSync(
+  path.join(VAULT, "config", "preset.md"),
+  "---\ntype: config\nconfig: preset\nactive: both\nonboarded: true\n---\n# 角色预设\n",
+);
 fs.writeFileSync(
   path.join(os.tmpdir(), "ccbilly-e2e-paths.json"),
   JSON.stringify({ root: E2E_ROOT, vault: VAULT, cache: CACHE, skills: SKILLS }),

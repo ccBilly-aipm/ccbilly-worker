@@ -1,7 +1,9 @@
+import { redirect } from "next/navigation";
 import { ensureIndexReady } from "@/lib/index/bootstrap";
 import { listByType } from "@/lib/index/queries";
 import { dashboardStats } from "@/lib/dashboard/stats";
 import { readSettings } from "@/lib/admin/settings";
+import { readPreset } from "@/lib/preset/preset-service";
 import { GlassCard } from "@/components/ui/glass-card";
 import { CountUp } from "@/components/ui/count-up";
 import { TodayOrbit } from "@/features/dashboard/today-orbit";
@@ -28,6 +30,8 @@ function greeting(h: number): string {
 
 export default async function DashboardPage() {
   await ensureIndexReady();
+  // First run: send the user through onboarding (skippable, defaults to 双修).
+  if (!readPreset().onboarded) redirect("/onboarding");
   const stats = dashboardStats();
   const settings = readSettings();
   const tasks = listByType("task");
