@@ -1,8 +1,14 @@
 # ccBilly 工作台
 
-B哥（Billy）的本地优先个人工作台 —— 任务 / 合集 / 日报 / 周报 / Skill 管理 / 知识库 / 应用中心 / 后台管理，深空玻璃拟态视觉，明暗双主题。
+> 本地优先（local-first）的个人工作台 —— 任务 / 合集 / 日报 / 周报 / Skill 管理 / 知识库 / 应用中心 / 后台管理，深空玻璃拟态视觉，明暗双主题。
+
+![Next.js](https://img.shields.io/badge/Next.js-15-black) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6) ![License](https://img.shields.io/badge/License-MIT-green) ![Data](https://img.shields.io/badge/data-Markdown--first-6ee7ff)
+
+一个把「任务进度跟进 → 自动生成日报/周报」跑成无手工拷贝闭环的个人工作台。数据不锁进数据库，而是一堆干净的 Markdown 文件，你随时能用 Obsidian 打开、用 Git 同步、粘进飞书。用 Next.js 15 + TypeScript 构建，`vault/` 里附带一套演示数据，`pnpm install && pnpm dev` 即可开跑。
 
 > **数据即 Markdown**：所有业务数据都是 `vault/` 目录下的纯文本 `.md` 文件（YAML frontmatter + Markdown 正文）。Git 友好、Obsidian 可直接打开、可无损粘贴进飞书。SQLite（`cache/index.db`）只是可随时重建的索引缓存，从不作为事实来源。
+
+> **关于演示数据**：仓库自带的 `vault/` 内容全部由 `pnpm seed` 生成、仅供演示（任务/日报/技能等均为占位示例），不含任何真实个人数据。你可以直接删掉 `vault/` 里的内容从零开始，或改写成自己的。
 
 ---
 
@@ -87,7 +93,7 @@ docker compose up --build      # 构建并启动，访问 http://localhost:3000
 - `docs/HANDBOOK.md` —— 架构、ADR、数据 schema、里程碑、验收清单（单一事实来源）
 - `docs/COLLABORATION.md` —— 协作协议与进度看板
 - `CLAUDE.md` / `AGENTS.md` —— AI 协作入口
-- `ccBilly工作台-ClaudeCode开发提示词.md` —— 需求规格原文
+- `docs/DELIVERY_REPORT.md` —— 交付报告
 
 ## 功能一览
 
@@ -105,3 +111,15 @@ docker compose up --build      # 构建并启动，访问 http://localhost:3000
 M1 地基 · M2 任务系统 · M3 报告系统 · M4 Skill 双模块 · M5 接入与后台 · M6 打磨 —— **全部 ✅ 完成**。
 
 详见 `docs/HANDBOOK.md` §5 与 `docs/DELIVERY_REPORT.md`。
+
+---
+
+## 技术栈
+
+Next.js 15（App Router）· TypeScript（strict）· Tailwind CSS · better-sqlite3（索引缓存）· gray-matter + zod（Markdown 数据层）· Recharts（图表）· dnd-kit（看板拖拽）· simple-git（Git 面板）· Vitest（单测）· Playwright（E2E）。
+
+## License
+
+[MIT](LICENSE) © Billy
+
+个人工作台项目，欢迎参考与自用。Issue / PR 随缘处理。

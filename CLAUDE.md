@@ -8,7 +8,7 @@
 2. 本项目运行「自主交付模式」，循环：认领 → 实现 → `pnpm verify` 全绿 → commit → 更新文档 → 记日志 → push → 下一个。
 3. 禁止向 B哥 提问；歧义自行决策并记入 HANDBOOK 的 ADR。允许停下的三种例外见 HANDBOOK §4.4。
 4. 红线：不 force push；不改写 git 历史；不删除 vault/ 真实数据；不提交 .env*；测试不触碰真实 `~/.claude/skills/`。
-5. 需求规格原文：《ccBilly工作台-ClaudeCode开发提示词.md》。与 HANDBOOK 冲突时，以 HANDBOOK 中更新的 ADR 为准。
+5. 需求规格原文：《ccBilly工作台-ClaudeCode开发提示词.md》为 B哥 私有，未随开源仓库发布（保存在本地私有目录）；开源仓库内以 HANDBOOK 为准。与 HANDBOOK 冲突时，以 HANDBOOK 中更新的 ADR 为准。
 
 ## 常用命令
 - `pnpm dev` — 本地开发（默认 http://localhost:3000）

@@ -20,4 +20,4 @@
 - 验证标准：`pnpm verify` 必须全绿方可提交，禁止注释掉失败测试来变绿。
 
 ## 需求规格原文
-《ccBilly工作台-ClaudeCode开发提示词.md》（Part A 为需求基准）。与 HANDBOOK 冲突时以 HANDBOOK 的 ADR 为准。
+需求原文《ccBilly工作台-ClaudeCode开发提示词.md》（Part A 为需求基准）为 B哥 私有，未随开源仓库发布，保存在本地私有目录。开源仓库内以 `docs/HANDBOOK.md` 为需求与架构的单一事实来源；与 HANDBOOK 冲突时以 HANDBOOK 的 ADR 为准。

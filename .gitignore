@@ -29,4 +29,7 @@ coverage/
 .DS_Store
 *.log
 
+# private requirement spec — kept out of the public open-source repo (ADR-012)
+ccBilly工作台-ClaudeCode开发提示词.md
+
 # NOTE: vault/ itself MUST be committed — it is the data + backup carrier.

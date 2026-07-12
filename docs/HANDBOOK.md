@@ -1,7 +1,7 @@
 # ccBilly 工作台 · 项目手册（单一事实来源 / Single Source of Truth）
 
 > 本文件是本项目的最高法。任何 Agent 在动手前必须先读它。
-> 需求规格原文见仓库根目录《ccBilly工作台-ClaudeCode开发提示词.md》（其 Part A 为需求基准）。
+> 需求规格原文《ccBilly工作台-ClaudeCode开发提示词.md》（其 Part A 为需求基准）为 B哥 私有，未随开源仓库发布，保存在本地私有目录。**开源仓库内本手册即为需求与架构的单一事实来源。**
 > 当本手册的 ADR 与规格原文冲突时，**以本手册中更新的 ADR 为准**（ADR 是对规格的合法演进记录）。
 
 ---
@@ -18,7 +18,7 @@
 
 视觉风格：**深空玻璃拟态科技感（Deep-Space Glassmorphism）**，支持明暗双主题。
 
-**需求来源**：`ccBilly工作台-ClaudeCode开发提示词.md`（Part A = 需求基准，Part B = 生图 prompt，Part C = 使用建议）。
+**需求来源**：`ccBilly工作台-ClaudeCode开发提示词.md`（Part A = 需求基准，Part B = 生图 prompt，Part C = 使用建议）——该原文为 B哥 私有、未随开源仓库发布，保存在本地私有目录；开源仓库内以本手册为准。
 
 **核心约束（决定架构，不可违背）**：
 1. 所有业务数据必须是 **Git 友好、Obsidian 可直接打开、可无损粘贴进飞书的纯文本 Markdown**。禁止把业务数据只存二进制数据库。
@@ -42,6 +42,7 @@
 | ADR-009 | 2026-07-10 | 自动化测试中的 Skills 目录一律指向临时目录（env `CCBILLY_SKILLS_TEST_ROOT` 或 fixture），**绝不触碰真实 `~/.claude/skills/`** | 规格 §3 验证标准 + 红线 | claude-main |
 | ADR-010 | 2026-07-10 | 日期边界按系统本地时区计算；ISO 周用于周报文件名（`YYYY-Www`）；每周起始日=周一（后台可改） | 规格 §0/§5/§6.8 | claude-main |
 | ADR-011 | 2026-07-10 | 今日轨道光点坐标（`Math.cos/sin` 结果）四舍五入到 2 位小数；`<body>` 加 `suppressHydrationWarning` | ①服务端/客户端三角函数浮点末位漂移导致 SVG cx/cy hydration mismatch，四舍五入使字符串一致（视觉零影响）；②浏览器扩展（如 mpa-*）在 hydrate 前注入 body 属性属无害误报 | claude-main |
+| ADR-012 | 2026-07-12 | 项目以 MIT 协议开源：①需求原文《ccBilly工作台-ClaudeCode开发提示词.md》移出仓库到本地私有目录 `../ccbilly-worker-private/` 并加入 `.gitignore`（含 Part C 个人化内容，不公开）；②`vault/` 全为 `pnpm seed` 演示数据，随仓库开源当演示集；③新增 `LICENSE`(MIT)、README 补开源说明/徽标/演示数据声明 | B哥 决策「开源，移出需求原文」；已核验仓库无真实密钥/邮箱/家目录/真名泄露 | claude-main |
 
 > 后续新增 ADR 依次编号，只增不删；被推翻的 ADR 标注「已被 ADR-NNN 取代」而非删除。
 
@@ -53,7 +54,8 @@
 
 ```text
 ccbilly-worker/                        # = 项目根（当前目录）
-├── ccBilly工作台-ClaudeCode开发提示词.md  # 需求原文（保留）
+├── LICENSE                            # MIT
+│   # 需求原文 ccBilly工作台-ClaudeCode开发提示词.md 为 B哥 私有，未随开源仓库发布
 ├── CLAUDE.md                          # Claude Code 入口（导入两份共同文档）
 ├── AGENTS.md                          # 其他 Agent 入口（Codex/Cursor 等）
 ├── README.md
