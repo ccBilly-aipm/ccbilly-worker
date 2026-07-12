@@ -12,6 +12,23 @@ function git(): SimpleGit {
   return simpleGit({ baseDir: projectRoot() });
 }
 
+/**
+ * Sanitize a user-supplied commit message (S1-5). simple-git passes the message
+ * as an argument (after `-m`) rather than through a shell, so this is NOT about
+ * shell injection — it's defense-in-depth + robustness: strip control chars,
+ * collapse a leading dash (so it can never be read as a flag), and cap length.
+ */
+export function sanitizeCommitMessage(input: string): string {
+  // eslint-disable-next-line no-control-regex
+  let msg = input
+    .replace(/[\x00-\x1f\x7f]/g, " ") // control chars → space
+    .replace(/\s+/g, " ") // collapse whitespace runs
+    .trim();
+  if (msg.startsWith("-")) msg = msg.replace(/^-+/, "").trim();
+  if (msg.length > 500) msg = msg.slice(0, 500);
+  return msg;
+}
+
 export interface GitStatusResult {
   available: boolean;
   branch?: string;
@@ -63,7 +80,8 @@ export async function quickCommit(message?: string): Promise<{
     if (status.files.length === 0) {
       return { ok: false, message: "没有需要提交的变更" };
     }
-    const msg = message || `chore(vault): sync ${localTimestamp()}`;
+    const provided = message ? sanitizeCommitMessage(message) : "";
+    const msg = provided || `chore(vault): sync ${localTimestamp()}`;
     await g.add("-A");
     await g.commit(msg);
     return { ok: true, message: `已提交：${msg}` };

@@ -50,13 +50,19 @@
 | S1-2 | Skill 路径穿越/符号链接逃逸（realpath 校验） | S1 | ✅ 已完成@claude-main | paths.ts 最近祖先 realpath 校验、8 对抗测试、ADR-014 |
 | S1-3 | SSRF /api/proxy allowlist + IP 校验 | S1 | ✅ 已完成@claude-main | net/ssrf.ts、29 对抗测试、逐跳重校验、fail-closed 开关、ADR-015 |
 | S1-4 | 分层鉴权 AUTH_MODE + fail-closed 绑定 + 限速（ADR） | S1 | ✅ 已完成@claude-main | middleware.ts、exposure.ts、auth.ts 强化、19 单测+2 E2E、ADR-016 |
-| S1-5 | Git 命令注入审计 + zip 导出根固定 | S1 | ⬜ 待认领 | — |
+| S1-5 | Git 命令注入审计 + zip 导出根固定 | S1 | ✅ 已完成@claude-main | 审计确认无注入面、message 净化、7 不变量测试 |
 | S1-6 | 依赖供应链 pnpm audit + .nvmrc + 安全响应头/CSP | S1 | ⬜ 待认领 | — |
 | S2 | 健壮性与性能（边界/节流/渲染缓存/压测/FOUC） | S2 | ⬜ 待认领 | — |
 | S3 | 开源成熟度（CI/SECURITY/CONTRIBUTING/截图/去个人化/CHANGELOG） | S3 | ⬜ 待认领 | — |
 | S4 | 收尾交付（DELIVERY V1.1/tag v1.1.0） | S4 | ⬜ 待认领 | — |
 
 ## 4. 协作日志
+
+### 2026-07-12 14:35 [claude-main]
+- 完成：**S1-5 Git 命令注入审计 + zip 导出根**。审计结论：Git 全部走 simple-git **参数数组 API**（不经 shell），全仓无 `.raw(`/`exec`/`spawn`/`--force`（仅注释与 `force-dynamic`）→ **无注入面、"永不 force push"是结构保证**；zip 导出 `archive.directory(vaultDir(), "vault")` 根**固定**无外部参数。加固：commit message 加 `sanitizeCommitMessage`（去控制字符/前导 `-`/截断 500）作纵深防御；写 7 个测试把"无 force/无 raw/无 child_process/导出根固定"三条**结构不变量**钉死防回归。
+- 变更：`pnpm verify` 全绿（**135 单测**，+7）。不做橡皮图章：如实标注本面原实现已安全，本轮为加固+护栏而非修高危洞。
+- 下一步：S1-6 依赖供应链（pnpm audit + .nvmrc + 安全响应头/CSP）。
+- 阻塞：无。
 
 ### 2026-07-12 14:00 [claude-main]
 - 完成：**S1-4 分层鉴权模型**（本轮最重架构决策）。实测确认原实现**只有 /admin UI 有口令，所有 mutation API 无鉴权**（写真实 skills、Git、导出 vault 全裸奔）——他人 `-H 0.0.0.0`/Docker 对外部署即把整机 skills 目录 + Git 凭据暴露给网络（Critical）。

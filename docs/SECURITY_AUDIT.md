@@ -158,6 +158,33 @@ _状态：见修复状态表。_
 
 ---
 
+## S1-5 · Git 面板与命令注入 / zip 导出根
+
+### 攻击面分析
+
+**Git（simple-git）**：
+- 全部调用走 simple-git 的**参数数组 API**（`g.add("-A")`/`g.commit(msg)`/`g.pull(["--rebase"])`/`g.push()`），**不经 shell**，无字符串拼接进命令行 → **无 shell 注入面**。
+- 全仓检索 `.raw(` / `exec` / `spawn` / `execSync`：**均无**。`--force` 仅出现在文档注释与 `dynamic="force-dynamic"`（无关）→ 代码路径**结构上不存在 force push 选项**，"永不 force push"是结构保证而非仅约定。
+- 唯一用户输入是 commit message（`quickCommit(message)`）。它被放在 `-m` 之后作为**值**传入，不会被解析成 flag；但含控制字符/换行/超长/前导 `-` 是健壮性隐患。
+- **信任边界修复**：加 `sanitizeCommitMessage`（去控制字符、去前导 `-`、截断 500）作纵深防御。
+
+**zip 导出（archiver）**：
+- `archive.directory(vaultDir(), "vault")`——打包根**固定为** `vaultDir()`，**无用户参数**，不可能被诱导打包其他路径。✓
+- `vaultDir()` 由 config（env/默认）控制，非请求可控。
+
+**结论**：本面**无高危注入漏洞**（原实现已用安全 API）；本轮加固为纵深防御（message 净化）+ 用测试把"无 force / 无 raw / 导出根固定"三条**结构不变量**钉死，防止未来回归。
+
+### 测试
+
+`tests/unit/git-export-security.test.ts`：
+- `sanitizeCommitMessage` 去控制字符、去前导 `-`、截断、正常消息保留；
+- 源码不变量：`git.ts` 不含 `.raw(` / `--force` / `child_process`；
+- 导出路由源码把 archiver 根固定为 `vaultDir()`（不接受外部路径参数）。
+
+_状态：见修复状态表。_
+
+---
+
 ## 修复状态表
 
 | 面 | 攻击面分析 | 对抗测试 | 修复 | 状态 |
@@ -166,3 +193,4 @@ _状态：见修复状态表。_
 | S1-2 路径穿越/符号链接 | ✅（发现写不存在路径经软链父目录逃逸的真实洞） | ✅ 8 用例（相对/绝对/反斜杠/NUL/软链读/**软链父写**/saveSkill/.trash 逃逸） | ✅ 最近存在祖先 realpath 校验 + NUL 拒绝（ADR-014） | ✅ 完成 |
 | S1-3 SSRF 反向代理 | ✅（环回/私网/元数据/重定向绕过全列举） | ✅ 29 用例（多notation IP 分类 + 端到端 + allowInternal 语义 + 元数据永拒） | ✅ ssrf.ts IP 校验 + 逐跳重定向重校验 + 敏感头剥离 + 10MB 上限 + fail-closed 开关（ADR-015） | ✅ 完成 |
 | S1-4 鉴权模型 | ✅（确认所有 mutation API 无鉴权 → 暴露即整机沦陷，Critical） | ✅ 19 单测（决策矩阵/常数时间/token/限速）+ 2 E2E（localhost 放行 vs 暴露 403 fail-closed） | ✅ middleware 分层模型 + timingSafeEqual + HMAC token + strict cookie + 限速（ADR-016） | ✅ 完成 |
+| S1-5 Git / zip 导出 | ✅（确认已用安全参数数组 API，无注入面；结构上无 force/raw） | ✅ 7 用例（message 净化 + 无 force/raw/child_process 源码不变量 + 导出根固定） | ✅ commit message 净化（纵深）+ 不变量测试钉死 | ✅ 完成（原实现已安全，本轮加固+回归护栏） |
