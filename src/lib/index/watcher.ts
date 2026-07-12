@@ -74,8 +74,15 @@ export async function flushPending(): Promise<void> {
 export function startWatcher(): FSWatcher {
   if (watcher) return watcher;
   const dir = vaultDir();
+  // Some filesystems don't deliver native inotify/FSEvents reliably (CI runners,
+  // overlayfs/tmpfs containers, network mounts). Fall back to polling there. Opt
+  // in via CHOKIDAR_USEPOLLING=1, and default it on under CI.
+  const usePolling =
+    process.env.CHOKIDAR_USEPOLLING === "1" || process.env.CI === "true";
   watcher = chokidar.watch(dir, {
     ignoreInitial: true,
+    usePolling,
+    interval: usePolling ? 300 : undefined,
     ignored: (p) => {
       const base = path.basename(p);
       return (
