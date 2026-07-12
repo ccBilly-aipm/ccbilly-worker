@@ -54,10 +54,10 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Rebuild native modules
-        run: pnpm rebuild better-sqlite3
+      - name: Build native module (better-sqlite3)
+        run: node scripts/build-native.mjs
 
       - name: Install Playwright browser (chromium)
         run: pnpm exec playwright install --with-deps chromium
