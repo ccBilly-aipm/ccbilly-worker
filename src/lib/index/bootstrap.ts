@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import { indexDbPath } from "@/lib/config";
-import { getDb } from "@/lib/index/db";
+import { getDb, indexSchemaCurrent } from "@/lib/index/db";
 import { rebuildIndex } from "@/lib/index/indexer";
 import { startWatcher } from "@/lib/index/watcher";
 
@@ -15,6 +15,10 @@ let ready: Promise<void> | null = null;
 async function doBootstrap(): Promise<void> {
   const dbMissing = !fs.existsSync(indexDbPath());
   if (dbMissing) {
+    await rebuildIndex();
+  } else if (!indexSchemaCurrent()) {
+    // A stale cache (e.g. a V1 index.db missing V2 columns) must be rebuilt to
+    // the current schema before any incremental INSERT touches it (ADR-019).
     await rebuildIndex();
   } else {
     // DB exists but might be empty (fresh file); rebuild if no entries.

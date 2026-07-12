@@ -55,6 +55,15 @@
 | S2 | 健壮性与性能（边界/节流/渲染缓存/压测/FOUC） | S2 | ✅ 已完成@claude-main | 边界6测/批量索引+并发锁/渲染缓存/seed:stress+bench(P95≤33ms)/FOUC 3 E2E |
 | S3 | 开源成熟度（CI/SECURITY/CONTRIBUTING/截图/去个人化/CHANGELOG） | S3 | ✅ 已完成@claude-main | CI 实机绿(verify+22 E2E)、SECURITY/CONTRIBUTING/issue 模板、4 截图、去个人化、CHANGELOG、Docker 鉴权、ADR-018 |
 | S4 | 收尾交付（DELIVERY V1.1/tag v1.1.0） | S4 | ✅ 已完成@claude-main | DELIVERY V1.1、里程碑/看板/日志收尾、tag v1.1.0 |
+| V2-M1a | 数据 schema 扩展 kind/rice/stage/platforms/metrics/cycle + 索引列 | V2-M1 | ✅ 已完成@claude-main | schema.ts 子类型、索引 kind/score/stage 列、passthrough 兼容 |
+| V2-M1b | 迁移脚本 pnpm migrate（zip 备份先行，可逆）+ 旧 vault 回归 | V2-M1 | ⬜ 待认领 | — |
+| V2-M1c | 角色预设层（preset 定义/切换/持久 vault/config/preset.md）+ 模块注册表 | V2-M1 | ⬜ 待认领 | — |
+| V2-M1d | Widget 化仪表盘（注册表/拖拽/宽度/布局存 vault/config/dashboard.md） | V2-M1 | ⬜ 待认领 | — |
+| V2-M2 | PM 模块包 B3 六项（需求池/周期燃尽/路线图/决策日志/纪要转任务/模板包） | V2-M2 | ⬜ 待认领 | — |
+| V2-M3 | 创作者模块包 B4 六项（选题库/内容看板/排期日历/多平台/数据复盘/情报源） | V2-M3 | ⬜ 待认领 | — |
+| V2-M4 | 通用体验 B5 五项 + B6 视觉增量 | V2-M4 | ⬜ 待认领 | — |
+| V2-M5 | MCP server（stdio，7 工具，受鉴权约束，集成测试） | V2-M5 | ⬜ 待认领 | — |
+| V2-M6 | 审核与上线（REVIEW_V2/README/CHANGELOG/DELIVERY/tag v2.0.0/release） | V2-M6 | ⬜ 待认领 | — |
 
 ## 4. 协作日志
 

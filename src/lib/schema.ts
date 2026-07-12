@@ -38,6 +38,46 @@ const dateOnly = z
 export const TaskStatus = z.enum(["todo", "doing", "blocked", "done", "archived"]);
 export const Priority = z.enum(["P0", "P1", "P2", "P3"]);
 
+/**
+ * V2 (ADR-019): a `type:task` entry may carry an optional `kind` discriminant to
+ * become a PM requirement or a creator content item, reusing the whole task
+ * pipeline (board/activity/index/atomic write). All V2 fields are OPTIONAL, so
+ * old task files stay valid unchanged (backward-compat red line). `.passthrough()`
+ * preserves them on round-trip.
+ */
+export const TaskKind = z.enum(["task", "requirement", "content"]);
+
+// PM requirement extras
+export const RiceScore = z
+  .object({
+    reach: z.number().min(0).default(0),
+    impact: z.number().min(0).default(0),
+    confidence: z.number().min(0).max(1).default(1),
+    effort: z.number().min(0.1).default(1),
+  })
+  .passthrough();
+export const RequirementStage = z.enum(["inbox", "pool", "scheduled", "shipped"]);
+
+// Creator content extras
+export const ContentStage = z.enum([
+  "idea",
+  "draft",
+  "ready",
+  "published",
+  "review",
+]);
+export const MetricSnapshot = z
+  .object({
+    date: dateOnly,
+    platform: z.string(),
+    views: z.number().int().min(0).optional().default(0),
+    likes: z.number().int().min(0).optional().default(0),
+    comments: z.number().int().min(0).optional().default(0),
+    shares: z.number().int().min(0).optional().default(0),
+    followers_gained: z.number().int().optional().default(0),
+  })
+  .passthrough();
+
 export const TaskFrontmatter = z
   .object({
     id: z.string().min(1),
@@ -51,11 +91,30 @@ export const TaskFrontmatter = z
     due: dateOnly.optional().nullable(),
     created: isoDateTime,
     updated: isoDateTime,
+    // ---- V2 optional fields (ADR-019); absent = plain task ----
+    kind: TaskKind.optional(),
+    // requirement (PM)
+    rice: RiceScore.optional(),
+    // content (creator)
+    platforms: z.array(z.string()).optional(),
+    publish_date: dateOnly.optional().nullable(),
+    metrics: z.array(MetricSnapshot).optional(),
+    // shared: requirement uses RequirementStage, content uses ContentStage; kept
+    // as a loose string so both validate (stage semantics enforced in services).
+    stage: z.string().optional(),
   })
   .passthrough();
 
 // ---- Collection ----
 export const CollectionStatus = z.enum(["active", "archived"]);
+
+/** V2: a collection with a start/end cycle becomes a burndown-capable sprint. */
+export const Cycle = z
+  .object({
+    start: dateOnly,
+    end: dateOnly,
+  })
+  .passthrough();
 
 export const CollectionFrontmatter = z
   .object({
@@ -66,6 +125,8 @@ export const CollectionFrontmatter = z
     description: z.string().optional().default(""),
     created: isoDateTime,
     updated: isoDateTime,
+    // V2 optional: gives the collection a burndown chart (ADR-019)
+    cycle: Cycle.optional().nullable(),
   })
   .passthrough();
 
@@ -154,6 +215,9 @@ export const KnowledgeFrontmatter = z
 
 export type Task = z.infer<typeof TaskFrontmatter>;
 export type Collection = z.infer<typeof CollectionFrontmatter>;
+export type Rice = z.infer<typeof RiceScore>;
+export type Metric = z.infer<typeof MetricSnapshot>;
+export type CycleT = z.infer<typeof Cycle>;
 export type Daily = z.infer<typeof DailyFrontmatter>;
 export type Weekly = z.infer<typeof WeeklyFrontmatter>;
 export type Skill = z.infer<typeof SkillFrontmatter>;

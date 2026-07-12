@@ -155,3 +155,49 @@ export function brokenCount(): number {
   };
   return row.n;
 }
+
+// ---- V2 queries (ADR-019) ----
+
+/** Requirements (kind=requirement), ordered by computed RICE score desc. */
+export function listRequirements(stage?: string): EntryView[] {
+  const db = getDb();
+  const rows = stage
+    ? (db
+        .prepare(
+          "SELECT * FROM entries WHERE kind = 'requirement' AND stage = ? ORDER BY score DESC, updated DESC",
+        )
+        .all(stage) as IndexRow[])
+    : (db
+        .prepare(
+          "SELECT * FROM entries WHERE kind = 'requirement' ORDER BY score DESC, updated DESC",
+        )
+        .all() as IndexRow[]);
+  return rows.map(rowToView);
+}
+
+/** Content items (kind=content), newest first (optionally by stage). */
+export function listContent(stage?: string): EntryView[] {
+  const db = getDb();
+  const rows = stage
+    ? (db
+        .prepare(
+          "SELECT * FROM entries WHERE kind = 'content' AND stage = ? ORDER BY updated DESC",
+        )
+        .all(stage) as IndexRow[])
+    : (db
+        .prepare(
+          "SELECT * FROM entries WHERE kind = 'content' ORDER BY updated DESC",
+        )
+        .all() as IndexRow[]);
+  return rows.map(rowToView);
+}
+
+/** Plain tasks only (kind is null/absent or explicitly 'task'). */
+export function listPlainTasks(): EntryView[] {
+  const rows = getDb()
+    .prepare(
+      "SELECT * FROM entries WHERE type = 'task' AND (kind IS NULL OR kind = 'task') ORDER BY updated DESC, slug ASC",
+    )
+    .all() as IndexRow[];
+  return rows.map(rowToView);
+}

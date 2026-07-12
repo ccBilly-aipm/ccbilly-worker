@@ -41,6 +41,22 @@ export const VAULT_SUBDIRS = {
   app: "apps",
 } as const;
 
+/**
+ * V2 (ADR-019/020/021/022): additional vault directories introduced by the
+ * dual-role version. Not entry-type dirs — they hold inbox captures, decision
+ * logs, config (preset + dashboard layout) and template packs.
+ */
+export const VAULT_V2_DIRS = {
+  inbox: "inbox",
+  decisions: "decisions",
+  config: "config",
+  templates: "templates",
+} as const;
+
+export function vaultV2Dir(key: keyof typeof VAULT_V2_DIRS): string {
+  return path.join(vaultDir(), VAULT_V2_DIRS[key]);
+}
+
 export type VaultEntryType =
   | "task"
   | "collection"

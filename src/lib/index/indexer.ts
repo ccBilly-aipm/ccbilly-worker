@@ -1,8 +1,9 @@
-import { getDb, resetDbFile, setMeta } from "@/lib/index/db";
+import { getDb, resetDbFile, setMeta, INDEX_SCHEMA_VERSION } from "@/lib/index/db";
 import { scanAll, readEntry } from "@/lib/vault/repo";
 import type { BrokenEntry, VaultEntry } from "@/lib/vault/types";
 import { unwrapWikiLink, extractLinkTargets } from "@/lib/markdown/wikilink";
 import { localISO } from "@/lib/utils/date";
+import { riceScore } from "@/lib/pm/rice";
 import type { EntryType } from "@/lib/schema";
 
 /**
@@ -18,12 +19,24 @@ function upsertEntry(entry: VaultEntry): void {
   );
   const tags = Array.isArray(d.tags) ? JSON.stringify(d.tags) : "[]";
 
+  // V2 (ADR-019): derive kind/stage/score for indexed filtering. A task file
+  // without `kind` indexes as a plain task; requirements get a computed RICE
+  // score; content items carry their pipeline stage.
+  const kind = (d.kind as string | undefined) ?? null;
+  const stage = (d.stage as string | undefined) ?? null;
+  const score =
+    kind === "requirement" && d.rice
+      ? riceScore(d.rice as Parameters<typeof riceScore>[0])
+      : null;
+
   db.prepare(
     `INSERT OR REPLACE INTO entries
      (file_path, slug, type, id, title, status, priority, collection,
-      progress, due, tags, category, data_json, content, mtime_ms, created, updated)
+      progress, due, tags, category, kind, score, stage,
+      data_json, content, mtime_ms, created, updated)
      VALUES (@file_path, @slug, @type, @id, @title, @status, @priority, @collection,
-      @progress, @due, @tags, @category, @data_json, @content, @mtime_ms, @created, @updated)`,
+      @progress, @due, @tags, @category, @kind, @score, @stage,
+      @data_json, @content, @mtime_ms, @created, @updated)`,
   ).run({
     file_path: entry.filePath,
     slug: entry.slug,
@@ -37,6 +50,9 @@ function upsertEntry(entry: VaultEntry): void {
     due: (d.due as string) ?? null,
     tags,
     category: (d.category as string) ?? null,
+    kind,
+    score,
+    stage,
     data_json: JSON.stringify(entry.data),
     content: entry.content,
     mtime_ms: entry.mtimeMs,
@@ -88,6 +104,7 @@ export async function rebuildIndex(): Promise<{
   });
   tx();
   setMeta("last_reindex", localISO());
+  setMeta("schema_version", INDEX_SCHEMA_VERSION);
   return { entries: entries.length, broken: broken.length };
 }
 
