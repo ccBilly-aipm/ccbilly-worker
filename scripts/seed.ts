@@ -280,6 +280,68 @@ async function seedKnowledge() {
   }
 }
 
+/** V2 demo data: a few requirements (RICE), content ideas (stages), a cycle. */
+async function seedV2(collectionSlugs: { slug: string; title: string }[]) {
+  const reqs: [string, number, number, number, number, string][] = [
+    ["支持批量导入任务", 200, 3, 0.8, 3, "pool"],
+    ["需求卡片支持附件", 80, 2, 0.9, 2, "inbox"],
+    ["周期看板加过滤器", 150, 2.5, 0.7, 4, "scheduled"],
+  ];
+  for (let i = 0; i < reqs.length; i++) {
+    const [title, reach, impact, confidence, effort, stage] = reqs[i];
+    await writeEntry({
+      type: "task",
+      filePath: path.join(vaultTypeDir("task"), `20260708-req-${i}.md`),
+      data: {
+        id: `task-req-${i}`, type: "task", kind: "requirement", title,
+        status: "todo", priority: "P2", stage,
+        rice: { reach, impact, confidence, effort },
+        tags: ["演示", "需求"], progress: 0,
+        created: localISO(daysAgo(6 - i)), updated: localISO(daysAgo(1)),
+      },
+      content: `${title} —— 演示需求。\n`,
+    });
+  }
+
+  const ideas: [string, string, string[]][] = [
+    ["AI PM 求职作品集怎么搭", "idea", ["公众号"]],
+    ["双角色产品设计复盘", "draft", ["公众号", "小红书"]],
+    ["MCP 让工作台被 Agent 驱动", "published", ["公众号"]],
+  ];
+  for (let i = 0; i < ideas.length; i++) {
+    const [title, stage, platforms] = ideas[i];
+    await writeEntry({
+      type: "task",
+      filePath: path.join(vaultTypeDir("task"), `20260707-idea-${i}.md`),
+      data: {
+        id: `task-idea-${i}`, type: "task", kind: "content", title,
+        status: "todo", priority: "P2", stage, platforms,
+        publish_date:
+          stage === "published" ? localDateKey(daysAgo(1)) : localDateKey(daysAgo(-3 - i)),
+        tags: ["演示", "选题"], progress: 0,
+        created: localISO(daysAgo(5 - i)), updated: localISO(daysAgo(1)),
+      },
+      content: `${title} —— 演示选题。\n`,
+    });
+  }
+
+  // give the first collection a cycle so the burndown widget has data
+  const first = collectionSlugs[0];
+  if (first) {
+    await writeEntry({
+      type: "collection",
+      filePath: path.join(vaultTypeDir("collection"), `${first.slug}.md`),
+      data: {
+        id: `col-${first.slug}`, type: "collection", title: first.title,
+        status: "active", description: `${first.title}（演示）`,
+        cycle: { start: localDateKey(daysAgo(5)), end: localDateKey(daysAgo(-5)) },
+        created: localISO(daysAgo(20)), updated: localISO(daysAgo(1)),
+      },
+      content: `${first.title} 演示合集（带周期）\n`,
+    });
+  }
+}
+
 async function main() {
   console.log(`seeding demo data into ${vaultDir()} …`);
   // V2: ensure the new vault dirs exist and mark onboarding done (default 双修)
@@ -293,6 +355,8 @@ async function main() {
   await seedSkills();
   await seedApps();
   await seedKnowledge();
+  // V2 demo data (requirements/content/cycle) so both presets look alive.
+  await seedV2(collections.map((title) => ({ slug: title, title })));
   const { entries, broken } = await rebuildIndex();
   console.log(
     `done. collections=${collections.length}, index entries=${entries}, broken=${broken}`,

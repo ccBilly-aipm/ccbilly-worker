@@ -2,6 +2,36 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/) 风格与 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [2.0.0] — 2026-07-12 · 双角色版（PM + 创作者）+ MCP
+
+从「B哥 的个人工作台」升级为「面向两类用户的产品」：同一内核、两套角色预设，并让工作台成为 Agent 可驱动的工具。
+
+### Added — 架构底座（V2-M1）
+- **角色预设层**：pm / creator / both 三预设，持久到 `vault/config/preset.md`；首启 Onboarding 选角色；nav 与 widget 按预设过滤。切换只改展示层，不迁移/删除数据（ADR-020）。
+- **数据 schema 扩展**：task 加可选 `kind: task|requirement|content` 子类型（复用整条 task 管道），requirement 加 RICE + stage，content 加 platforms/publish_date/stage/metrics，合集加可选 cycle。全可选 + passthrough → **旧 vault 零改动可用**（ADR-019）。
+- **Widget 化仪表盘**：可拖拽、可调宽度的玻璃 Bento 网格，布局按预设存 `vault/config/dashboard.md`（净化防注入，ADR-021）。
+- **可逆迁移**：`pnpm migrate` 先 zip 备份再幂等非破坏迁移（ADR-022）。
+
+### Added — PM 模块包（V2-M2）
+需求池（RICE 打分排序 + 四段分诊）· 周期燃尽图 · 路线图时间线 · 决策日志（ADR 模板 + 到期复盘）· 会议纪要→行动项批量转任务 · 模板包（PRD/竞品/访谈/复盘/会议纪要）。
+
+### Added — 创作者模块包（V2-M3）
+选题库 · 内容管道五列拖拽看板 · 发布日历月视图拖拽改期 · 一稿多平台适配清单 · 数据复盘（快照录入 + 跨平台对比）· **情报源**（RSS/JSON 订阅，复用 V1.1 SSRF 守卫，仅白名单出网，ADR-024）。
+
+### Added — 通用体验（V2-M4）
+快速捕捉（命令面板 `!` 前缀入库）· 命令面板深化 + `?` 快捷键表 · 可保存视图 · 周复盘四步向导 · B6 视觉（PM 电光青 / 创作者星云紫 accent、widget 拖拽微动效）。
+
+### Added — MCP server（V2-M5）
+`pnpm mcp`（stdio）暴露 7 工具（list_tasks / create_task / update_task / append_activity / create_idea / generate_daily_draft / get_stats），让 Claude Code 等 Agent 直接驱动工作台。写工具受 `AUTH_MODE=passcode` 凭据约束（ADR-023）。见 `docs/MCP.md`。
+
+### Security
+- 新增出网面（情报源）与写入面（MCP）均复用 V1.1 的 SSRF / 分层鉴权防护；15 个 feed SSRF 对抗测试 + 10 个 MCP 鉴权测试。
+- 新增 15 个 mutation API 全部落在 middleware 鉴权闸内；`pnpm audit` 仍 0 漏洞；V1.1 安全套件持续全绿。
+
+### 测试与审核
+- 单测 209 · E2E 33 全绿；大 vault（2935 条目）下所有 V2 路由 P95 ≤ 30ms。
+- 上线前独立审核见 `docs/REVIEW_V2.md`（无 blocker）。
+
 ## [1.1.0] — 2026-07-12 · 安全加固与开源成熟度
 
 面向开源发布的加固版：把项目从"自己能跑"提升到"陌生人敢用、敢部署、敢贡献"。
@@ -41,5 +71,6 @@
 - M6 打磨（今日轨道、命令面板、动效/空状态、无障碍、README）。
 - 随后以 MIT 协议开源。
 
+[2.0.0]: https://github.com/ccBilly-aipm/ccbilly-worker/releases/tag/v2.0.0
 [1.1.0]: https://github.com/ccBilly-aipm/ccbilly-worker/releases/tag/v1.1.0
 [1.0.0]: https://github.com/ccBilly-aipm/ccbilly-worker/releases/tag/v1.0.0

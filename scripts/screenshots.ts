@@ -38,6 +38,14 @@ async function setTheme(page: Page, theme: "dark" | "light") {
   }, theme);
 }
 
+async function setPreset(active: "pm" | "creator" | "both") {
+  await fetch(`${BASE}/api/preset`, {
+    method: "PATCH",
+    headers: { "content-type": "application/json", "x-ccbilly-admin": "1" },
+    body: JSON.stringify({ active, onboarded: true }),
+  });
+}
+
 async function main() {
   fs.mkdirSync(OUT, { recursive: true });
   const browser: Browser = await chromium.launch();
@@ -50,13 +58,21 @@ async function main() {
 
   console.log(`shooting ${BASE} → ${OUT}`);
 
-  // Dark theme signature shots
+  // Dark theme signature shots (default 双修 preset)
+  await setPreset("both");
   await setTheme(page, "dark");
   await shoot(page, "/", "dashboard-dark.png");
   await shoot(page, "/tasks", "kanban-dark.png");
   await shoot(page, "/reports/daily", "daily-dark.png");
 
+  // Two-preset dashboard comparison (V2 dual-role)
+  await setPreset("pm");
+  await shoot(page, "/", "dashboard-pm.png");
+  await setPreset("creator");
+  await shoot(page, "/", "dashboard-creator.png");
+
   // Light theme dashboard (for the light/dark pair)
+  await setPreset("both");
   await setTheme(page, "light");
   await shoot(page, "/", "dashboard-light.png");
 

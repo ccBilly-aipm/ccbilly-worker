@@ -1,10 +1,10 @@
 # ccBilly 工作台
 
-> 本地优先（local-first）的个人工作台 —— 任务 / 合集 / 日报 / 周报 / Skill 管理 / 知识库 / 应用中心 / 后台管理，深空玻璃拟态视觉，明暗双主题。
+> **双角色**的本地优先（local-first）个人工作台 —— 同一内核、两套人格：**产品经理（PM）** 与 **自媒体创作者**。任务/日报/周报/知识库/应用中心之外，PM 模式给你需求池·RICE·周期燃尽·路线图·决策日志，创作者模式给你选题库·内容管道·发布日历·数据复盘·情报源。深空玻璃拟态视觉，明暗双主题，可拖拽 Widget 仪表盘，还内置 **MCP server** 让 Claude Code 等 Agent 直接驱动它。
 
-[![CI](https://github.com/ccBilly-aipm/ccbilly-worker/actions/workflows/ci.yml/badge.svg)](https://github.com/ccBilly-aipm/ccbilly-worker/actions/workflows/ci.yml) ![Next.js](https://img.shields.io/badge/Next.js-15-black) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6) ![License](https://img.shields.io/badge/License-MIT-green) ![Data](https://img.shields.io/badge/data-Markdown--first-6ee7ff)
+[![CI](https://github.com/ccBilly-aipm/ccbilly-worker/actions/workflows/ci.yml/badge.svg)](https://github.com/ccBilly-aipm/ccbilly-worker/actions/workflows/ci.yml) ![Next.js](https://img.shields.io/badge/Next.js-15-black) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6) ![MCP](https://img.shields.io/badge/MCP-server-a855f7) ![License](https://img.shields.io/badge/License-MIT-green) ![Data](https://img.shields.io/badge/data-Markdown--first-6ee7ff)
 
-一个把「任务进度跟进 → 自动生成日报/周报」跑成无手工拷贝闭环的个人工作台。数据不锁进数据库，而是一堆干净的 Markdown 文件，你随时能用 Obsidian 打开、用 Git 同步、粘进飞书。用 Next.js 15 + TypeScript 构建，`vault/` 里附带一套演示数据，`pnpm install && pnpm dev` 即可开跑。
+一个把「任务/需求/内容 → 自动生成日报/周报/复盘」跑成无手工拷贝闭环的个人工作台。数据不锁进数据库，而是一堆干净的 Markdown 文件，你随时能用 Obsidian 打开、用 Git 同步、粘进飞书。首次启动选个角色（PM / 创作者 / 双修），工作台就按你的角色定制模块与仪表盘布局——切换只改展示、绝不动数据。用 Next.js 15 + TypeScript 构建，`vault/` 里附带演示数据，`pnpm install && pnpm dev` 即可开跑。
 
 > **数据即 Markdown**：所有业务数据都是 `vault/` 目录下的纯文本 `.md` 文件（YAML frontmatter + Markdown 正文）。Git 友好、Obsidian 可直接打开、可无损粘贴进飞书。SQLite（`cache/index.db`）只是可随时重建的索引缓存，从不作为事实来源。
 
@@ -13,19 +13,23 @@
 ## 界面预览
 
 <p align="center">
-  <img src="docs/screenshots/dashboard-dark.png" alt="仪表盘 · 今日轨道（暗色）" width="100%">
+  <img src="docs/screenshots/dashboard-dark.png" alt="仪表盘 · 今日轨道 + 可拖拽 Widget 网格（暗色）" width="100%">
 </p>
+
+**双角色 · 同一内核两套人格**（仪表盘按角色预设呈现不同模块与布局）：
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/screenshots/kanban-dark.png" alt="任务看板"><br><sub>任务看板 · 拖拽改状态自动记动态</sub></td>
-    <td width="50%"><img src="docs/screenshots/daily-dark.png" alt="日报生成"><br><sub>日报 · 从任务动态一键聚合</sub></td>
+    <td width="50%"><img src="docs/screenshots/dashboard-pm.png" alt="PM 模式仪表盘"><br><sub>PM 模式 · 需求分诊队列（RICE）+ 周期燃尽环</sub></td>
+    <td width="50%"><img src="docs/screenshots/dashboard-creator.png" alt="创作者模式仪表盘"><br><sub>创作者模式 · 内容管道 + 发布日历</sub></td>
   </tr>
   <tr>
-    <td width="50%"><img src="docs/screenshots/dashboard-light.png" alt="仪表盘（亮色）"><br><sub>亮色主题（云海晨光）</sub></td>
-    <td width="50%" valign="middle"><sub>深空玻璃拟态，明暗双主题无 FOUC。截图由 <code>pnpm screenshots</code> 对演示数据自动生成，界面改版可一键重生成。</sub></td>
+    <td width="50%"><img src="docs/screenshots/kanban-dark.png" alt="任务看板"><br><sub>任务看板 · 拖拽改状态自动记动态</sub></td>
+    <td width="50%"><img src="docs/screenshots/dashboard-light.png" alt="仪表盘（亮色）"><br><sub>亮色主题（云海晨光）· 无 FOUC</sub></td>
   </tr>
 </table>
+
+<sub>深空玻璃拟态，明暗双主题。截图由 <code>pnpm screenshots</code> 对演示数据自动生成，界面改版可一键重生成。</sub>
 
 ---
 
@@ -123,32 +127,45 @@ docker compose up --build      # 访问 http://localhost:3000
 ## 项目文档
 
 - `docs/HANDBOOK.md` —— 架构、ADR、数据 schema、里程碑、验收清单（单一事实来源）
-- `docs/COLLABORATION.md` —— 协作协议与进度看板
+- `docs/BLUEPRINT-V2.md` —— V2 双角色版设计蓝图
+- `docs/MCP.md` —— MCP server 使用文档 + Claude Code 连接示例
+- `docs/SECURITY_AUDIT.md` / `docs/REVIEW_V2.md` —— 安全审计 + V2 上线前审核
+- `docs/DELIVERY_REPORT.md` —— 交付报告（含 V1.1 / V2.0 人话章节）
 - `CLAUDE.md` / `AGENTS.md` —— AI 协作入口
-- `docs/DELIVERY_REPORT.md` —— 交付报告
 
 ## 功能一览
 
-- **仪表盘** —— 「今日轨道」签名环图（今日完成率 + 任务光点）、近 14 天完成趋势、合集分布、年度活动热力图
-- **任务与合集** —— 列表/看板双视图，拖拽改状态自动记「动态」，详情抽屉（子任务/进度/时间线），合集进度环
-- **日报/周报** —— 从任务动态一键聚合、编辑定稿、复制为 Markdown（飞书友好）、周报图表、导出 .md、日历浏览
-- **Skill 管理** —— Tab A 管理真实 `~/.claude/skills`（扫描/查看/编辑，编辑前自动备份，白名单防路径穿越）；Tab B 个人技能树（雷达图 + 学习记录）
-- **知识库** —— 浏览 Obsidian 笔记，渲染 `[[双链]]` 与反链
-- **应用中心** —— link/iframe（被拒内嵌自动降级）/proxy 三种接入
-- **后台管理** —— 口令保护，数据概览/Git 同步/应用 CRUD/Skill 目录/个性化/导出 zip
-- **命令面板** —— `Cmd/Ctrl+K` 全局搜索与快捷动作
+**通用**
+- **角色预设** —— 首启 Onboarding 选角色（PM / 创作者 / 双修）；后台随时切换，只改展示不动数据
+- **Widget 仪表盘** —— 可拖拽、可调宽度的玻璃 Bento 网格，布局按角色分别存于 vault；「今日轨道」签名环
+- **任务与合集** —— 列表/看板双视图，拖拽改状态自动记「动态」，详情抽屉，合集进度环
+- **日报/周报** —— 从动态一键聚合、周复盘四步向导、复制为 Markdown（飞书友好）、图表、导出
+- **快速捕捉 Inbox** —— 全局 `!` 命令面板一句话入库，稍后分诊为任务/需求/选题
+- **命令面板 + 快捷键** —— `Cmd/Ctrl+K` 搜索/动作/前往，`?` 快捷键表；可保存视图
+- **知识库 / Skill 管理 / 应用中心 / 后台** —— 见下方安全模型；Skill 管真实 `~/.claude/skills`（白名单防穿越）
+
+**PM 模式**
+- **需求池** RICE 打分排序 + inbox→pool→scheduled→shipped 分诊 · **周期** 燃尽图 · **路线图** 时间线 · **决策日志** ADR 模板 + 到期复盘 · **纪要→行动项** 批量转任务 · **模板包** PRD/竞品/访谈/复盘
+
+**创作者模式**
+- **选题库** 灵感卡 · **内容管道** 五列拖拽看板 · **发布日历** 月视图拖拽改期 · **一稿多平台** 适配清单 · **数据复盘** 快照录入 + 跨平台对比 · **情报源** RSS/JSON 订阅（SSRF 守卫，仅白名单出网）
+
+**Agent 集成**
+- **MCP server** —— `pnpm mcp`（stdio）暴露 7 个工具，让 Claude Code 等 Agent 直接驱动工作台（查/建任务、追加动态、记选题、生成日报、读统计）。写工具受鉴权约束。见 [docs/MCP.md](docs/MCP.md)
 
 ## 里程碑进度
 
-M1 地基 · M2 任务系统 · M3 报告系统 · M4 Skill 双模块 · M5 接入与后台 · M6 打磨 —— **全部 ✅ 完成**。
+**V1**：M1 地基 · M2 任务系统 · M3 报告系统 · M4 Skill 双模块 · M5 接入与后台 · M6 打磨 —— ✅
+**V1.1 安全加固**：XSS/路径穿越/SSRF/分层鉴权/依赖清零 + CI —— ✅
+**V2 双角色版**：架构底座（预设/Widget/迁移）· PM 模块包 · 创作者模块包 · 通用体验 · MCP server · 审核上线 —— ✅
 
-详见 `docs/HANDBOOK.md` §5 与 `docs/DELIVERY_REPORT.md`。
+详见 `docs/HANDBOOK.md` §5、`docs/DELIVERY_REPORT.md` 与 `CHANGELOG.md`。
 
 ---
 
 ## 技术栈
 
-Next.js 15（App Router）· TypeScript（strict）· Tailwind CSS · better-sqlite3（索引缓存）· gray-matter + zod（Markdown 数据层）· Recharts（图表）· dnd-kit（看板拖拽）· simple-git（Git 面板）· Vitest（单测）· Playwright（E2E）。
+Next.js 15（App Router）· TypeScript（strict）· Tailwind CSS · better-sqlite3（索引缓存）· gray-matter + zod（Markdown 数据层）· unified/rehype（净化渲染）· Recharts（图表）· dnd-kit（看板/Widget 拖拽）· simple-git（Git 面板）· @modelcontextprotocol/sdk（MCP server）· Vitest（单测）· Playwright（E2E）。
 
 ## License
 
