@@ -12,8 +12,11 @@ onlyBuiltDependencies:
 
 # framer-motion 12.23.24 imports `activeAnimations` from motion-dom, but a later
 # motion-dom within its caret range removed that export. Pin the matching version.
+# postcss <8.5.10 has a build-time XSS advisory (GHSA-qx2v-qp2m-jg93); force the
+# patched version across transitive deps (next/vite bundle older ones). S1-6.
 overrides:
   motion-dom: "12.23.23"
+  postcss: ">=8.5.10"
 
 # Native binaries are built manually (macOS toolchain); do not re-run the
 # implicit `install` deps-status check before each `pnpm exec`/`pnpm run`.

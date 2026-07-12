@@ -194,3 +194,13 @@ _状态：见修复状态表。_
 | S1-3 SSRF 反向代理 | ✅（环回/私网/元数据/重定向绕过全列举） | ✅ 29 用例（多notation IP 分类 + 端到端 + allowInternal 语义 + 元数据永拒） | ✅ ssrf.ts IP 校验 + 逐跳重定向重校验 + 敏感头剥离 + 10MB 上限 + fail-closed 开关（ADR-015） | ✅ 完成 |
 | S1-4 鉴权模型 | ✅（确认所有 mutation API 无鉴权 → 暴露即整机沦陷，Critical） | ✅ 19 单测（决策矩阵/常数时间/token/限速）+ 2 E2E（localhost 放行 vs 暴露 403 fail-closed） | ✅ middleware 分层模型 + timingSafeEqual + HMAC token + strict cookie + 限速（ADR-016） | ✅ 完成 |
 | S1-5 Git / zip 导出 | ✅（确认已用安全参数数组 API，无注入面；结构上无 force/raw） | ✅ 7 用例（message 净化 + 无 force/raw/child_process 源码不变量 + 导出根固定） | ✅ commit message 净化（纵深）+ 不变量测试钉死 | ✅ 完成（原实现已安全，本轮加固+回归护栏） |
+| S1-6 依赖 / 响应头 | ✅（audit 原 25 漏洞：2 critical + 12 high；含直接威胁 S1-4/S1-5 的 next Middleware bypass 与 simple-git RCE） | ✅ 实机验证：5 安全头全部下发、prod 下 fail-closed 403、本机读 200 | ✅ 升级 next/simple-git/vitest/postcss（audit 清零）+ `.nvmrc` + CSP/安全头（ADR-017） | ✅ 完成 |
+
+---
+
+## 依赖审计快照（S1-6）
+
+- **加固前**：`pnpm audit` 报 25 个漏洞（2 critical + 12 high + 9 moderate + 2 low）。critical：`simple-git` blockUnsafeOperations bypass / RCE（<3.36.0）、`vitest` UI server 任意读文件（<3.2.6，dev-only）。high：多个 `next` Middleware/Proxy bypass、SSRF、DoS（<15.5.18）。
+- **加固后**：`next@15.5.20`、`simple-git@3.36.0`、`vitest@3.2.7`、`postcss` override `>=8.5.10` → **`pnpm audit` = No known vulnerabilities found（零漏洞）**。
+- **说明**：`next` Middleware bypass 直接威胁 S1-4 的鉴权中间件、`simple-git` RCE 直接关联 S1-5 的 Git 面板——即使代码层用法安全，库本身的洞也必须靠升级消除。这是"审计者视角高于开发者视角"的又一例。
+- **响应头**（`next.config.mjs`，实机 curl 确认下发）：`Content-Security-Policy`（务实策略）、`X-Content-Type-Options: nosniff`、`Referrer-Policy: strict-origin-when-cross-origin`、`X-Frame-Options: SAMEORIGIN`、`Permissions-Policy`。CSP 保留 style/script `unsafe-inline`（玻璃拟态内联样式 + next-themes 主题脚本 + Recharts 内联脚本依赖），`frame-src 'self' https:`（应用中心 iframe），`frame-ancestors 'self'`（防点击劫持）。后续可 nonce 化收紧为待办。

@@ -51,12 +51,19 @@
 | S1-3 | SSRF /api/proxy allowlist + IP 校验 | S1 | ✅ 已完成@claude-main | net/ssrf.ts、29 对抗测试、逐跳重校验、fail-closed 开关、ADR-015 |
 | S1-4 | 分层鉴权 AUTH_MODE + fail-closed 绑定 + 限速（ADR） | S1 | ✅ 已完成@claude-main | middleware.ts、exposure.ts、auth.ts 强化、19 单测+2 E2E、ADR-016 |
 | S1-5 | Git 命令注入审计 + zip 导出根固定 | S1 | ✅ 已完成@claude-main | 审计确认无注入面、message 净化、7 不变量测试 |
-| S1-6 | 依赖供应链 pnpm audit + .nvmrc + 安全响应头/CSP | S1 | ⬜ 待认领 | — |
+| S1-6 | 依赖供应链 pnpm audit + .nvmrc + 安全响应头/CSP | S1 | ✅ 已完成@claude-main | audit 25→0、next/simple-git 等升级、.nvmrc、CSP+4 安全头、ADR-017 |
 | S2 | 健壮性与性能（边界/节流/渲染缓存/压测/FOUC） | S2 | ⬜ 待认领 | — |
 | S3 | 开源成熟度（CI/SECURITY/CONTRIBUTING/截图/去个人化/CHANGELOG） | S3 | ⬜ 待认领 | — |
 | S4 | 收尾交付（DELIVERY V1.1/tag v1.1.0） | S4 | ⬜ 待认领 | — |
 
 ## 4. 协作日志
+
+### 2026-07-12 15:20 [claude-main]
+- 完成：**S1-6 依赖供应链 + 安全响应头**（S1 收官）。`pnpm audit` 原报 **25 漏洞（2 critical + 12 high）**——关键：`simple-git` RCE（关联 S1-5）、`next` 多个 Middleware/Proxy bypass（**直接威胁 S1-4 鉴权中间件**）、`vitest` UI 任意读文件。升级 `next 15.5.7→15.5.20`、`simple-git 3.28→3.36`、`vitest 3.2.4→3.2.7`、`postcss` override `≥8.5.10` → **audit 零漏洞**。补 `.nvmrc`(22)；`next.config.mjs` 加全站安全响应头（CSP 务实策略 + nosniff + Referrer-Policy + X-Frame-Options + Permissions-Policy）。
+- 实机验证（prod build，curl）：5 安全头全部下发；`POST /api/tasks` 伪造公网 Host → **403 fail-closed**；本机 `GET` → 200。**19 E2E 全过**（含主题切换零 console error，证明 CSP 不破坏内联样式/主题脚本/图表）。
+- 变更：`pnpm verify` 全绿（135 单测）；ADR-017；SECURITY_AUDIT 补依赖审计快照。日志滚动归档最早 2 条到 `docs/logs/archive-202607.md`。
+- 下一步：S2 健壮性与性能（数据层边界/chokidar 节流/渲染缓存/压测/FOUC）。
+- 阻塞：无。
 
 ### 2026-07-12 14:35 [claude-main]
 - 完成：**S1-5 Git 命令注入审计 + zip 导出根**。审计结论：Git 全部走 simple-git **参数数组 API**（不经 shell），全仓无 `.raw(`/`exec`/`spawn`/`--force`（仅注释与 `force-dynamic`）→ **无注入面、"永不 force push"是结构保证**；zip 导出 `archive.directory(vaultDir(), "vault")` 根**固定**无外部参数。加固：commit message 加 `sanitizeCommitMessage`（去控制字符/前导 `-`/截断 500）作纵深防御；写 7 个测试把"无 force/无 raw/无 child_process/导出根固定"三条**结构不变量**钉死防回归。
@@ -136,17 +143,7 @@
 - 下一步：M3-1 日报聚合（完成/推进/新建/受阻分类，复制为 Markdown）。
 - 阻塞：无（Git 远端仍未配置，本地提交照常）。
 
-### 2026-07-10 13:40 [claude-main]
-- 完成：Bootstrap + **M1 地基全部交付**。脚手架、明暗主题壳（无 FOUC）、Markdown-first 数据层（zod/原子写/gray-matter round-trip/wikilink/section helpers/待修复机制）、SQLite 索引 + chokidar 监听 + 重建、命令面板与导航壳、seed（39 条）。
-- 变更：`pnpm verify` 全绿；26 单测 + 4 E2E 通过；首次 commit `4b62618`（127 files）。修复真实 bug：YAML ISO 日期被解析成 Date，schema 现强制归一为 string。
-- 下一步：M2-1 任务 CRUD + Route Handlers → 列表 → 看板拖拽 → 详情抽屉 → 合集。
-- 阻塞：无 Git 远端（不阻塞，本地已提交；待 B哥 配置远端后 push）。
-
-### 2026-07-10 13:06 [claude-main]
-- 完成：现状盘点（当前目录仅需求原文，无代码，M1–M6 全部从零）；读毕规格全文。
-- 变更：创建 docs/HANDBOOK.md、docs/COLLABORATION.md（本文件）；建立 ADR-001~010、任务看板 B0/M1–M6。
-- 下一步：创建 CLAUDE.md + AGENTS.md → 脚手架 Next.js → 配置 pnpm verify → git init + 首次 commit。
-- 阻塞：无。
+> 更早的 Bootstrap / M1 起始日志已归档至 `docs/logs/archive-202607.md`（主文件保留最近 15 条）。
 
 ## 5. 给 B哥 的人话进度
 
