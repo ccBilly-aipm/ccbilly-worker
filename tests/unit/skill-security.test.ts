@@ -61,7 +61,9 @@ describe("path traversal guard (RED LINE)", () => {
     );
     const root = skillRoots()[0];
     const p = resolveWithinRoot(root, path.join("my-skill", "SKILL.md"));
-    expect(p.startsWith(skillsRoot)).toBe(true);
+    // guard now returns a realpath-normalized location (S1-2/ADR-014), so compare
+    // against the realpath of the root, not its lexical form (macOS /tmp symlink).
+    expect(p.startsWith(fs.realpathSync(skillsRoot))).toBe(true);
   });
 
   it("rejects a symlink pointing outside the root", async () => {

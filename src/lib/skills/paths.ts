@@ -47,38 +47,79 @@ function realpathSafe(p: string): string {
   }
 }
 
+/** True if `p` equals `root` or is a strict descendant of it. */
+function isInside(p: string, root: string): boolean {
+  return p === root || p.startsWith(root + path.sep);
+}
+
+/**
+ * Realpath of the nearest EXISTING ancestor of `candidate`, joined with the
+ * remaining not-yet-existing tail. This is the crux of the S1-2 fix: it resolves
+ * symlinks even when `candidate` itself does not exist yet (e.g. a file about to
+ * be written), so a symlinked parent dir can't smuggle a write outside the root.
+ */
+function realpathOfNearestAncestor(candidate: string): string {
+  let existing = candidate;
+  const tail: string[] = [];
+  // Walk up until we hit a path that exists (root "/" always exists).
+  while (!fs.existsSync(existing)) {
+    const parent = path.dirname(existing);
+    if (parent === existing) break; // reached filesystem root
+    tail.unshift(path.basename(existing));
+    existing = parent;
+  }
+  const realBase = realpathSafe(existing);
+  return tail.length ? path.join(realBase, ...tail) : realBase;
+}
+
 /**
  * Resolve a candidate path and assert it lives inside one of the whitelisted
- * roots. Throws on any traversal attempt. Returns the safe absolute path.
+ * roots. Throws on any traversal attempt. Returns the safe absolute path
+ * (realpath-normalized so callers operate on the true location).
+ *
+ * Defense layers (S1-2 / ADR-014):
+ *  1. reject NUL bytes and absolute/backslash-traversal injection lexically;
+ *  2. reject `../` escape via path.relative on the lexically-resolved candidate;
+ *  3. resolve the realpath of the nearest existing ancestor + tail — even for
+ *     not-yet-existing write targets — and assert it stays within an allowed
+ *     root. This defeats symlinked parent dirs on write paths (the real hole).
  *
  * @param root  the SkillRoot the caller intends to operate within
  * @param relative  a path relative to root.dir (may be "" for the root itself)
  */
 export function resolveWithinRoot(root: SkillRoot, relative: string): string {
-  const base = path.resolve(root.dir);
+  // reject NUL / control byte injection before it reaches any fs call
+  if (relative.includes("\0")) {
+    throw new SkillPathError("拒绝：路径包含非法字符");
+  }
   // reject absolute or drive-letter injection outright
   if (path.isAbsolute(relative)) {
     throw new SkillPathError("拒绝：不允许绝对路径");
   }
-  const candidate = path.resolve(base, relative);
-  // the resolved candidate must be base or a descendant of base
+  // treat backslashes as separators too, so `..\..\x` is caught as traversal
+  // on POSIX (where path.relative would otherwise see one odd filename)
+  const normalizedRel = relative.replace(/\\/g, "/");
+  if (normalizedRel.split("/").some((seg) => seg === "..")) {
+    throw new SkillPathError(`拒绝：检测到路径穿越（${relative}）`);
+  }
+
+  const base = realpathSafe(path.resolve(root.dir));
+  const candidate = path.resolve(base, normalizedRel);
+  // lexical descendant check
   const rel = path.relative(base, candidate);
   if (rel.startsWith("..") || path.isAbsolute(rel)) {
     throw new SkillPathError(`拒绝：检测到路径穿越（${relative}）`);
   }
-  // if the candidate exists, its realpath must also stay within an allowed root
-  // (defends against symlinks pointing outside)
-  if (fs.existsSync(candidate)) {
-    const real = realpathSafe(candidate);
-    const roots = allowedRoots();
-    const inside = roots.some(
-      (r) => real === r || real.startsWith(r + path.sep),
-    );
-    if (!inside) {
-      throw new SkillPathError("拒绝：符号链接指向白名单之外");
-    }
+
+  // realpath check that also covers not-yet-existing write targets: resolve the
+  // nearest existing ancestor's real location and re-check containment against
+  // the realpath of EVERY allowed root.
+  const real = realpathOfNearestAncestor(candidate);
+  const roots = allowedRoots();
+  if (!roots.some((r) => isInside(real, r))) {
+    throw new SkillPathError("拒绝：符号链接指向白名单之外");
   }
-  return candidate;
+  return real;
 }
 
 /** Find which whitelisted root (if any) a given absolute path belongs to. */

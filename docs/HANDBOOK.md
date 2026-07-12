@@ -42,6 +42,7 @@
 | ADR-009 | 2026-07-10 | 自动化测试中的 Skills 目录一律指向临时目录（env `CCBILLY_SKILLS_TEST_ROOT` 或 fixture），**绝不触碰真实 `~/.claude/skills/`** | 规格 §3 验证标准 + 红线 | claude-main |
 | ADR-010 | 2026-07-10 | 日期边界按系统本地时区计算；ISO 周用于周报文件名（`YYYY-Www`）；每周起始日=周一（后台可改） | 规格 §0/§5/§6.8 | claude-main |
 | ADR-011 | 2026-07-10 | 今日轨道光点坐标（`Math.cos/sin` 结果）四舍五入到 2 位小数；`<body>` 加 `suppressHydrationWarning` | ①服务端/客户端三角函数浮点末位漂移导致 SVG cx/cy hydration mismatch，四舍五入使字符串一致（视觉零影响）；②浏览器扩展（如 mpa-*）在 hydrate 前注入 body 属性属无害误报 | claude-main |
+| ADR-014 | 2026-07-12 | Skill 路径守卫 `resolveWithinRoot` 改为**基于最近存在祖先的 realpath** 校验（不再依赖 `existsSync(candidate)` 才做 realpath），并显式拒绝 NUL 字节与反斜杠穿越，返回值改为 realpath 化的安全路径 | 旧实现的符号链接检查只在 candidate 已存在时执行，导致**写不存在文件时经软链父目录逃逸**（实测打穿：软链 `evil→外部` + 写 `evil/SKILL.md` 落到外部）；新实现对写目标同样解析真实位置，无绕过。副作用：返回 realpath（调用方本就该操作真实位置），旧断言相应更新。取代 ADR-006 中路径守卫的实现细节，红线本身不变 | claude-main |
 | ADR-013 | 2026-07-12 | Markdown→HTML 渲染从 `marked` 切换为 unified/rehype 管线（`remark-parse→remark-gfm→remark-rehype(不透传 raw HTML)→rehype-sanitize 白名单→rehype-stringify`），移除 `marked` 依赖 | `marked` 默认不消毒且透传内联 HTML，配合 `dangerouslySetInnerHTML` 构成实锤 XSS（10 个向量测试全部打穿）；rehype-sanitize 在 AST 层白名单净化，无绕过路径，且保留双链/代码块/表格/checklist 正常渲染。取代原渲染实现，不推翻其他 ADR | claude-main |
 | ADR-012 | 2026-07-12 | 项目以 MIT 协议开源：①需求原文《ccBilly工作台-ClaudeCode开发提示词.md》移出仓库到本地私有目录 `../ccbilly-worker-private/` 并加入 `.gitignore`（含 Part C 个人化内容，不公开）；②`vault/` 全为 `pnpm seed` 演示数据，随仓库开源当演示集；③新增 `LICENSE`(MIT)、README 补开源说明/徽标/演示数据声明 | B哥 决策「开源，移出需求原文」；已核验仓库无真实密钥/邮箱/家目录/真名泄露 | claude-main |
 

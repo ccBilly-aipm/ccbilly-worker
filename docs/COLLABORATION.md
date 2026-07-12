@@ -47,7 +47,7 @@
 | VIS-1 | Part B 正式视觉素材（Logo/主题背景/空状态/404） | Visual | ✅ 已完成@codex-image | `public/assets/` 9 张 GPT Image 素材 |
 | VIS-2 | 素材接入到界面（favicon/logo/空状态/404） | Visual | ✅ 已完成@claude-main | icon.png、sidebar logo、EmptyState 真图；黑底包圆角玻璃容器；bg 保留 CSS |
 | S1-1 | XSS/Markdown 渲染净化（rehype-sanitize 管线） | S1 | ✅ 已完成@claude-main | render.ts 换管线、17 对抗+回归测试、移除 marked、ADR-013、SECURITY_AUDIT |
-| S1-2 | Skill 路径穿越/符号链接逃逸（realpath 校验） | S1 | ⬜ 待认领 | — |
+| S1-2 | Skill 路径穿越/符号链接逃逸（realpath 校验） | S1 | ✅ 已完成@claude-main | paths.ts 最近祖先 realpath 校验、8 对抗测试、ADR-014 |
 | S1-3 | SSRF /api/proxy allowlist + IP 校验 | S1 | ⬜ 待认领 | — |
 | S1-4 | 分层鉴权 AUTH_MODE + fail-closed 绑定 + 限速（ADR） | S1 | ⬜ 待认领 | — |
 | S1-5 | Git 命令注入审计 + zip 导出根固定 | S1 | ⬜ 待认领 | — |
@@ -57,6 +57,13 @@
 | S4 | 收尾交付（DELIVERY V1.1/tag v1.1.0） | S4 | ⬜ 待认领 | — |
 
 ## 4. 协作日志
+
+### 2026-07-12 12:10 [claude-main]
+- 完成：**S1-2 Skill 路径穿越/符号链接逃逸**。审计者视角发现 README 声称的"白名单防穿越"有**真实缺口**：`resolveWithinRoot` 的符号链接 realpath 检查**只在 candidate 已存在时执行**，而写操作（`saveSkill`、`.trash` 备份）创建的是不存在路径 → 经软链父目录（`evil→外部`）写 `evil/SKILL.md` 可逃逸到白名单外写真实文件。先写 8 个对抗测试证明（软链父写、saveSkill 逃逸、.trash 逃逸先全红）。
+- 修复：改为**最近存在祖先 realpath + 尾段**校验——即使写目标不存在也解析真实位置，任何中间软链在祖先 realpath 步骤暴露；另显式拒绝 NUL 字节与反斜杠穿越；返回值改 realpath 化。8 对抗测试全绿，旧 skill-security 断言同步适配 realpath 语义。
+- 变更：`pnpm verify` 全绿（**80 单测**，+8）；ADR-014 记录。区分了误报向量（未解码的 `%2e%2e` 是安全字面名，不该 throw）与真漏洞，不做橡皮图章。
+- 下一步：S1-3 SSRF `/api/proxy`（allowlist + IP 校验 + 对抗测试）。
+- 阻塞：无。
 
 ### 2026-07-12 11:30 [claude-main]
 - 完成：**S1-1 XSS/Markdown 渲染净化**（本轮 S 系列首个）。Bootstrap：通读遗留文档，把 DELIVERY_REPORT「已知限制」与 HANDBOOK「已知问题」并入本轮看板（S1–S4 已登记）。攻击面分析写入新建 `docs/SECURITY_AUDIT.md`：全仓检索确认 HTML 注入面**收敛到单一** `renderMarkdown`（knowledge 详情页 `dangerouslySetInnerHTML`），任务/日报/skill 正文都是 `<textarea>` 纯文本天然免疫。
