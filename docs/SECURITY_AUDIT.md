@@ -91,9 +91,43 @@ _状态：见修复状态表。_
 
 ---
 
+## S1-3 · SSRF（`/api/proxy/[appId]` 反向代理）
+
+### 攻击面分析
+
+**入口**：`GET/POST /api/proxy/[appId]`。目标 URL 取自**已登记应用**的 `proxyBaseUrl`（非裸 target 参数——这点原实现已做对），但登记应用本身在 S1-4 前无鉴权，且 admin 可写任意 URL。
+
+**信任边界**：应用配置里的 URL 字符串（半可信/可被写入）→ 服务端 `fetch`（以服务器身份发起、可达内网）。
+
+**可达性 & 影响**（教科书级 SSRF）：
+- 原实现只校验 `^https?://`，**不校验解析后的 IP**。把 `proxyBaseUrl` 设为：
+  - `http://127.0.0.1:8003`（B哥 本机的 oMLX）、`http://127.0.0.1:1234`（LM Studio）→ 服务端替攻击者访问本地模型服务；
+  - `http://169.254.169.254/latest/meta-data/`（云元数据）→ 云部署时窃取实例凭据；
+  - `http://10.x/`、`http://192.168.x/`、`http://[::1]/`、`http://内网主机名/` → 内网横向探测。
+- `redirect: "follow"`：即使 baseUrl 是公网，upstream 可 **302 跳转到 `127.0.0.1`**，绕过任何 URL 级检查（DNS-rebinding / redirect-based SSRF）。
+- 无响应体大小上限：超大响应可致内存压力。
+- **严重度：High（云部署可致凭据泄露；本机可穿透到内网服务）。**
+
+**信任边界修复原则**：默认拒绝模型（allowlist + IP 分类拒绝），仅在用户显式开关时放行内网。
+
+### 对抗性测试（先红）
+
+`tests/unit/ssrf.test.ts`，对 IP/主机分类器 `isBlockedAddress` + 端到端解析 `assertPublicUrl` 施加：
+环回 `127.0.0.1`/`::1`、私网 `10./172.16-31./192.168.`、链路本地 `169.254.`/`fe80::`、元数据 `169.254.169.254`、`0.0.0.0`、IPv6 唯一本地 `fc00::/7`、IPv4-mapped IPv6 `::ffff:127.0.0.1`、十进制/十六进制 IP 变体（`2130706433` = 127.0.0.1）；放行公网 `1.1.1.1`、`example.com`。默认关闭内网；开关打开时私网放行但元数据地址**始终**拒绝。
+
+### 修复（转绿）
+
+见 ADR-015：新增 `src/lib/net/ssrf.ts`（IP 分类 + DNS 解析后校验），proxy 路由改为：
+① 仅代理 proxy-mode 已登记应用（保持）；② `fetch` 前对目标域名 `dns.lookup(all)` 解析出所有 IP，任一命中黑名单即拒绝（除非 `allowInternalProxyTargets` 开关开，且元数据地址永不放行）；③ `redirect: "manual"`——不自动跟随，若 upstream 3xx 跳转则对 `Location` 重新过一遍 allowlist/IP 校验（最多 N 跳）；④ 剥离 Cookie/Authorization 等敏感请求头（原实现已只转发白名单头，强化确认）；⑤ 响应体大小上限（如 10MB）。
+
+_状态：见修复状态表。_
+
+---
+
 ## 修复状态表
 
 | 面 | 攻击面分析 | 对抗测试 | 修复 | 状态 |
 |---|---|---|---|---|
 | S1-1 XSS/Markdown | ✅ | ✅ 17 用例（10 攻击 + 7 回归） | ✅ rehype-sanitize 管线（ADR-013） | ✅ 完成 |
 | S1-2 路径穿越/符号链接 | ✅（发现写不存在路径经软链父目录逃逸的真实洞） | ✅ 8 用例（相对/绝对/反斜杠/NUL/软链读/**软链父写**/saveSkill/.trash 逃逸） | ✅ 最近存在祖先 realpath 校验 + NUL 拒绝（ADR-014） | ✅ 完成 |
+| S1-3 SSRF 反向代理 | ✅（环回/私网/元数据/重定向绕过全列举） | ✅ 29 用例（多notation IP 分类 + 端到端 + allowInternal 语义 + 元数据永拒） | ✅ ssrf.ts IP 校验 + 逐跳重定向重校验 + 敏感头剥离 + 10MB 上限 + fail-closed 开关（ADR-015） | ✅ 完成 |

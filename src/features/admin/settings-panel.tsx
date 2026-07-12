@@ -9,6 +9,7 @@ interface Settings {
   weekStartsMonday: boolean;
   defaultTheme: string;
   skillProjectRoots: string[];
+  allowInternalProxyTargets: boolean;
 }
 
 /** Personalization (spec §6.8 ⑤): 称呼 / 每周起始 / 默认主题 + logout. */
@@ -81,6 +82,28 @@ export function SettingsPanel() {
           </select>
           <span className="text-[11px] text-muted">
             实际首屏主题仍由浏览器保存的偏好决定，此项作为默认建议。
+          </span>
+        </label>
+      </GlassCard>
+
+      <GlassCard className="space-y-3">
+        <h2 className="font-display text-lg font-medium text-fg">安全 · 反向代理</h2>
+        <label className="flex items-start gap-2">
+          <input
+            type="checkbox"
+            checked={s.allowInternalProxyTargets}
+            onChange={(e) =>
+              save({ allowInternalProxyTargets: e.target.checked })
+            }
+            className="mt-0.5 h-4 w-4 accent-[rgb(var(--aurora-cyan))]"
+          />
+          <span className="text-sm text-fg">
+            允许代理到内网 / 本机目标
+            <span className="mt-0.5 block text-[11px] text-muted">
+              默认关闭。仅在你确实需要代理到本机模型服务（如 oMLX/LM Studio）等内网地址时开启；
+              开启后反向代理才可访问 127.0.0.1 / 私网地址。云元数据地址（169.254.169.254）
+              <b className="text-fg">始终被拒绝</b>。公网部署请保持关闭。
+            </span>
           </span>
         </label>
       </GlassCard>

@@ -27,7 +27,7 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "ccBilly 工作台",
-  description: "B哥 的本地优先个人工作台 · 深空玻璃拟态",
+  description: "本地优先的个人工作台 · 深空玻璃拟态",
 };
 
 export const viewport: Viewport = {

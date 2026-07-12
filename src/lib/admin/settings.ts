@@ -10,17 +10,24 @@ import { atomicWriteFile } from "@/lib/vault/atomic";
  */
 
 export interface Settings {
-  displayName: string; // 称呼 (default 「B哥」)
+  displayName: string; // 称呼 (default 「朋友」)
   weekStartsMonday: boolean;
   defaultTheme: "dark" | "light" | "system";
   skillProjectRoots: string[];
+  /**
+   * SSRF opt-in (S1-3): allow the reverse proxy to reach loopback/private
+   * targets (e.g. a local model server). Default OFF (fail-closed). The cloud
+   * metadata address is ALWAYS blocked regardless of this flag.
+   */
+  allowInternalProxyTargets: boolean;
 }
 
 const DEFAULTS: Settings = {
-  displayName: "B哥",
+  displayName: "朋友",
   weekStartsMonday: true,
   defaultTheme: "dark",
   skillProjectRoots: [],
+  allowInternalProxyTargets: false,
 };
 
 function settingsPath(): string {

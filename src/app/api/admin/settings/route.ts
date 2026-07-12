@@ -14,6 +14,7 @@ const Schema = z.object({
   weekStartsMonday: z.boolean().optional(),
   defaultTheme: z.enum(["dark", "light", "system"]).optional(),
   skillProjectRoots: z.array(z.string()).optional(),
+  allowInternalProxyTargets: z.boolean().optional(),
 });
 
 export async function PATCH(req: NextRequest) {

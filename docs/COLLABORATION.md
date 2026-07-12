@@ -48,7 +48,7 @@
 | VIS-2 | 素材接入到界面（favicon/logo/空状态/404） | Visual | ✅ 已完成@claude-main | icon.png、sidebar logo、EmptyState 真图；黑底包圆角玻璃容器；bg 保留 CSS |
 | S1-1 | XSS/Markdown 渲染净化（rehype-sanitize 管线） | S1 | ✅ 已完成@claude-main | render.ts 换管线、17 对抗+回归测试、移除 marked、ADR-013、SECURITY_AUDIT |
 | S1-2 | Skill 路径穿越/符号链接逃逸（realpath 校验） | S1 | ✅ 已完成@claude-main | paths.ts 最近祖先 realpath 校验、8 对抗测试、ADR-014 |
-| S1-3 | SSRF /api/proxy allowlist + IP 校验 | S1 | ⬜ 待认领 | — |
+| S1-3 | SSRF /api/proxy allowlist + IP 校验 | S1 | ✅ 已完成@claude-main | net/ssrf.ts、29 对抗测试、逐跳重校验、fail-closed 开关、ADR-015 |
 | S1-4 | 分层鉴权 AUTH_MODE + fail-closed 绑定 + 限速（ADR） | S1 | ⬜ 待认领 | — |
 | S1-5 | Git 命令注入审计 + zip 导出根固定 | S1 | ⬜ 待认领 | — |
 | S1-6 | 依赖供应链 pnpm audit + .nvmrc + 安全响应头/CSP | S1 | ⬜ 待认领 | — |
@@ -57,6 +57,14 @@
 | S4 | 收尾交付（DELIVERY V1.1/tag v1.1.0） | S4 | ⬜ 待认领 | — |
 
 ## 4. 协作日志
+
+### 2026-07-12 12:55 [claude-main]
+- 完成：**S1-3 SSRF 反向代理加固**。攻击面：原 `/api/proxy` 只校验 `^https?://`，可把 `proxyBaseUrl` 设为 `127.0.0.1:8003`(oMLX)/`169.254.169.254`(云元数据)/内网地址 → 服务端替攻击者访问内网；`follow` 重定向还能 302 跳内网绕过。写 29 个对抗测试（多 notation IP：dotted/decimal/hex/IPv4-mapped-IPv6，环回/私网/链路本地/CGNAT/多播/元数据全覆盖）。
+- 修复：新增 `src/lib/net/ssrf.ts`（IP 分类 + `dns.lookup(all)` 解析后逐个校验）；代理路由改 `redirect:"manual"` **逐跳重校验** Location、剥离 Cookie/Authorization 等敏感头、10MB 响应上限；新增 `allowInternalProxyTargets` 设置（默认关，fail-closed），后台面板加开关（带安全说明），**云元数据地址永不放行**（即使开内网开关）。
+- 顺带（S3 预work）：`displayName` 默认从「B哥」改中性「朋友」、layout meta 去个人化。
+- 变更：`pnpm verify` 全绿（**109 单测**，+29）；ADR-015 记录。
+- 下一步：S1-4 分层鉴权模型（AUTH_MODE + fail-closed 绑定 + 常数时间比较 + 限速，写 ADR）。
+- 阻塞：无。
 
 ### 2026-07-12 12:10 [claude-main]
 - 完成：**S1-2 Skill 路径穿越/符号链接逃逸**。审计者视角发现 README 声称的"白名单防穿越"有**真实缺口**：`resolveWithinRoot` 的符号链接 realpath 检查**只在 candidate 已存在时执行**，而写操作（`saveSkill`、`.trash` 备份）创建的是不存在路径 → 经软链父目录（`evil→外部`）写 `evil/SKILL.md` 可逃逸到白名单外写真实文件。先写 8 个对抗测试证明（软链父写、saveSkill 逃逸、.trash 逃逸先全红）。

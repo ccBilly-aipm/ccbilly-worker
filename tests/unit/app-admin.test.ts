@@ -63,7 +63,9 @@ describe("settings service", () => {
     const { readSettings, writeSettings } = await import(
       "../../src/lib/admin/settings"
     );
-    expect(readSettings().displayName).toBe("B哥");
+    // default is a neutral value (S3 de-personalization); B哥 sets his own name.
+    expect(readSettings().displayName).toBe("朋友");
+    expect(readSettings().allowInternalProxyTargets).toBe(false); // SSRF fail-closed
     const next = await writeSettings({ displayName: "老板", weekStartsMonday: true });
     expect(next.displayName).toBe("老板");
     expect(readSettings().displayName).toBe("老板");
