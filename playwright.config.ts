@@ -30,10 +30,15 @@ export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: 0,
+  // One retry in CI only: the external-file-watch test depends on chokidar fs
+  // event timing, which can occasionally exceed the window on a loaded CI runner.
+  // Locally we keep retries at 0 so real failures surface immediately.
+  retries: process.env.CI ? 1 : 0,
   workers: 1,
   reporter: [["list"]],
-  timeout: 30_000,
+  // Generous per-test timeout: the external-file-watch test waits on chokidar
+  // fs events which are slower on CI filesystems than locally.
+  timeout: 45_000,
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",

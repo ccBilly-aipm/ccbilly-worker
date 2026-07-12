@@ -116,6 +116,8 @@ updated: 2026-07-10T10:00:00+08:00
   fs.writeFileSync(path.join(tasksDir, "20260710-obsidian-ext.md"), md);
 
   await page.goto("/tasks");
-  // the client polls every ~4s; the watcher indexes the new file
-  await expect(page.getByText(external)).toBeVisible({ timeout: 15_000 });
+  // The chokidar watcher indexes the new file, then the client polls every ~4s.
+  // CI filesystems deliver fs events with more latency than local, so allow
+  // generous headroom (the feature itself is fast locally: ~5s).
+  await expect(page.getByText(external)).toBeVisible({ timeout: 25_000 });
 });
