@@ -56,5 +56,3 @@ export async function updateStage(
   await indexFile(filePath, "task");
   return getBySlug("task", slug)!;
 }
-
-export { STAGES as REQUIREMENT_STAGES };

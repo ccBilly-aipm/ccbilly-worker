@@ -2,28 +2,12 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import {
-  aggregateByPlatform,
-  buildPlatformChecklist,
-  PLATFORMS,
-} from "../../src/lib/creator/platforms";
+import { aggregateByPlatform, PLATFORMS } from "../../src/lib/creator/platforms";
 
 /** V2-M3 creator helpers: platform checklist + metric aggregation. */
 
-describe("platform checklist", () => {
-  it("builds a checklist section for the given platforms", () => {
-    const md = buildPlatformChecklist(["公众号", "小红书"]);
-    expect(md).toContain("## 平台适配");
-    expect(md).toContain("### 公众号");
-    expect(md).toContain("### 小红书");
-    expect(md).toMatch(/- \[ \]/);
-  });
-  it("ignores unknown platforms", () => {
-    const md = buildPlatformChecklist(["公众号", "不存在的平台"]);
-    expect(md).toContain("### 公众号");
-    expect(md).not.toContain("不存在的平台");
-  });
-  it("every platform def has a non-empty checklist", () => {
+describe("platform definitions", () => {
+  it("every platform def has a non-empty adaptation checklist", () => {
     for (const p of PLATFORMS) expect(p.checklist.length).toBeGreaterThan(0);
   });
 });

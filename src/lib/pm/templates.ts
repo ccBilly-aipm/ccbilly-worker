@@ -97,10 +97,6 @@ export const PM_TEMPLATES: TemplateDef[] = [
   },
 ];
 
-export function getTemplate(id: string): TemplateDef | undefined {
-  return PM_TEMPLATES.find((t) => t.id === id);
-}
-
 /**
  * Extract action items from meeting-notes markdown (blueprint B3.5): unchecked
  * `- [ ] ...` lines. Returns the trimmed action text for each (the leading

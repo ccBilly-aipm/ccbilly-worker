@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { GlassCard } from "@/components/ui/glass-card";
-import { PLATFORMS, platformDef, type MetricRow } from "@/lib/creator/platforms";
+import {
+  PLATFORMS,
+  platformDef,
+  aggregateByPlatform,
+  type MetricRow,
+} from "@/lib/creator/platforms";
 import { LazyPlatformBars } from "@/features/dashboard/lazy-charts";
 
 export interface ContentDetailData {
@@ -137,12 +142,9 @@ function MetricsSection({
     }
   };
 
-  const chartData = platforms
-    .map((p) => {
-      const rows = data.metrics.filter((m) => m.platform === p);
-      const views = rows.reduce((s, m) => s + (Number(m.views) || 0), 0);
-      return { platform: p, views };
-    })
+  // Cross-platform comparison via the shared aggregator (B4.5).
+  const chartData = aggregateByPlatform(data.metrics)
+    .map((a) => ({ platform: a.platform, views: a.views }))
     .filter((d) => d.views > 0);
 
   return (

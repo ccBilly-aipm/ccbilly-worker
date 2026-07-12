@@ -43,19 +43,6 @@ export function platformDef(id: string): PlatformDef | undefined {
   return PLATFORMS.find((p) => p.id === id);
 }
 
-/** Build the `## 平台适配` checklist markdown for a set of platforms. */
-export function buildPlatformChecklist(platforms: string[]): string {
-  const lines: string[] = ["## 平台适配", ""];
-  for (const id of platforms) {
-    const def = platformDef(id);
-    if (!def) continue;
-    lines.push(`### ${def.label}`);
-    for (const item of def.checklist) lines.push(`- [ ] ${item}`);
-    lines.push("");
-  }
-  return lines.join("\n");
-}
-
 export interface MetricRow {
   date: string;
   platform: string;
