@@ -17,6 +17,8 @@
     "test:e2e": "playwright test",
     "verify": "next lint && tsc --noEmit && vitest run && next build",
     "seed": "tsx scripts/seed.ts",
+    "seed:stress": "tsx scripts/seed-stress.ts",
+    "bench": "tsx scripts/bench.ts",
     "reindex": "tsx scripts/reindex.ts"
   },
   "dependencies": {
