@@ -53,10 +53,17 @@
 | S1-5 | Git 命令注入审计 + zip 导出根固定 | S1 | ✅ 已完成@claude-main | 审计确认无注入面、message 净化、7 不变量测试 |
 | S1-6 | 依赖供应链 pnpm audit + .nvmrc + 安全响应头/CSP | S1 | ✅ 已完成@claude-main | audit 25→0、next/simple-git 等升级、.nvmrc、CSP+4 安全头、ADR-017 |
 | S2 | 健壮性与性能（边界/节流/渲染缓存/压测/FOUC） | S2 | ✅ 已完成@claude-main | 边界6测/批量索引+并发锁/渲染缓存/seed:stress+bench(P95≤33ms)/FOUC 3 E2E |
-| S3 | 开源成熟度（CI/SECURITY/CONTRIBUTING/截图/去个人化/CHANGELOG） | S3 | ⬜ 待认领 | — |
+| S3 | 开源成熟度（CI/SECURITY/CONTRIBUTING/截图/去个人化/CHANGELOG） | S3 | ✅ 已完成@claude-main | CI 实机绿(verify+22 E2E)、SECURITY/CONTRIBUTING/issue 模板、4 截图、去个人化、CHANGELOG、Docker 鉴权、ADR-018 |
 | S4 | 收尾交付（DELIVERY V1.1/tag v1.1.0） | S4 | ⬜ 待认领 | — |
 
 ## 4. 协作日志
+
+### 2026-07-12 18:00 [claude-main]
+- 完成：**S3 开源成熟度全部交付**。①**CI**：`.github/workflows/ci.yml`（verify 作业 + Playwright e2e 作业），**实机跑绿**（147 单测 + 22 E2E），README 加 CI 徽章。②社区文档：`SECURITY.md`（三种部署姿势 + 审计摘要 + 漏洞报告）、`CONTRIBUTING.md`、bug/feature issue 模板。③**README 截图**：`pnpm screenshots`（scripts/screenshots.ts）对演示数据自动截暗色仪表盘/看板/日报/亮色仪表盘 4 张，嵌入 README 顶部。④去个人化：默认称呼「朋友」、meta 与残留注释清理。⑤版本化：package.json name→`ccbilly-worker`、version→`1.1.0`，写 `CHANGELOG.md`。⑥Docker：compose 默认 `AUTH_MODE=passcode`，README 加三姿势安全部署段。
+- CI 攻坚（对抗式排障，非橡皮图章）：连续修 3 类真实问题——(a) `pnpm-workspace.yaml` 的 `allowBuilds` 占位串导致 install 失败；(b) pnpm 11 `ERR_PNPM_IGNORED_BUILDS` → 改 `--ignore-scripts` install + `scripts/build-native.mjs` 走 prebuild-install 建 better-sqlite3（两作业都改）；(c) chokidar 原生 fs 事件在 CI 文件系统**系统性失效**（初跑+重试都超时）→ ADR-018：`CI`/`CHOKIDAR_USEPOLLING` 下启用轮询。每步都本机从干净 node_modules 复现验证后再推。
+- 变更：`pnpm verify` 全绿（147 单测）；CI 两作业实机全绿（22 E2E）。
+- 下一步：S4 收尾（DELIVERY_REPORT V1.1 + tag v1.1.0）。
+- 阻塞：无。
 
 ### 2026-07-12 16:30 [claude-main]
 - 完成：**S2 健壮性与性能全部交付**。①数据层边界：6 测证明空/frontmatter-only/非法YAML/超大(>1MB)/含空格中文文件名/BOM 全部走「待修复」或正确解析、绝不崩溃（gray-matter 已原生剥 BOM，现有回归覆盖）。②chokidar 变更风暴：watcher 改为 pending 集合累积 + **单事务批量** `applyChanges` + 并发锁，500 文件 `git pull` 合并为一次提交（3 测：500 风暴/混合增删原子/批内坏文件不拖垮）。③Markdown 渲染按 content（天然 mtime 正确）**缓存**，有界 FIFO 512，缓存命中仍净化（3 测）。④压测 `pnpm seed:stress`(2000 任务+730 日报+200 笔记=2935 条目) + `pnpm bench`：**P95 全部远低于 200ms**（仪表盘 33ms/任务 3ms/日报 4ms/api 9ms），结论入 HANDBOOK §7.1。⑤FOUC：3 个 E2E 证明默认暗色首屏无闪、持久化亮色不闪暗、reload 不闪错主题；reduced-motion 已有 E2E 覆盖。
@@ -168,3 +175,5 @@
 **S1 安全加固（2026-07-12）**：开源后陌生人可能拿它对外部署，我把安全从头审了一遍、每个洞先写测试证明存在再修。补上了几处真问题：知识库笔记里藏的恶意脚本现在会被自动清洗（原来会执行）；改 Skill 时想借软链跳出目录写别的文件的招被堵死了；反向代理不再能被诱导去偷偷访问你本机或内网服务；最重要的——原来只有后台有口令、其它写操作全裸奔，现在只要不是本机访问且没开鉴权，所有写操作一律拒绝并提示你配置（本机用照样免登录，体验没变）。另外把有已知漏洞的依赖全升级到干净版本（原来有 2 个严重 + 12 个高危）、加了网页安全头。这些都写进了 docs/SECURITY_AUDIT.md。
 
 **S2 健壮性与性能（2026-07-12）**：让它在极端情况下也不崩、跑得快。你在 Obsidian 里 `git pull` 一下涌进几百个文件，工作台现在会合并成一次批量更新而不是卡住；笔记里塞了空文件、乱码、超大文件也只会安静地进「待修复」列表，绝不白屏。我造了一份 2935 条的大数据集实测：仪表盘、任务列表这些页面响应都在几十毫秒内，远低于目标。还确认了明暗主题首屏不闪、你要是开了「减少动效」系统设置，那些旋转光效会自动停。
+
+**S3 开源成熟度（2026-07-12）**：让别人愿意用、能贡献。现在每次往 GitHub 推代码，都会自动跑一遍全部检查和测试（147 单测 + 22 端到端），仓库首页有个绿色的 CI 徽章证明它是健康的。README 顶上放了 4 张真机截图（你那套深空仪表盘、看板、日报、亮色主题），别人一眼就能看到长什么样。还补齐了安全说明、贡献指南、报 bug 的模板，把默认称呼从「B哥」改成中性的「朋友」（你自己在后台设成想要的名字）。Docker 部署默认开启了口令保护。
