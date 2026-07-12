@@ -40,6 +40,12 @@ export interface CreateTaskInput {
   tags?: string[];
   due?: string | null;
   description?: string;
+  // V2 (ADR-019): create a requirement or content item, reusing this pipeline.
+  kind?: "task" | "requirement" | "content";
+  stage?: string;
+  rice?: Record<string, number>;
+  platforms?: string[];
+  publish_date?: string | null;
 }
 
 export async function createTask(input: CreateTaskInput): Promise<EntryView> {
@@ -59,6 +65,15 @@ export async function createTask(input: CreateTaskInput): Promise<EntryView> {
     `- ${localTimestamp(now)} · 创建任务`,
   ].join("\n");
 
+  // V2 optional fields are only written when present, so a plain task file stays
+  // identical to V1 (backward-compat).
+  const v2: Record<string, unknown> = {};
+  if (input.kind && input.kind !== "task") v2.kind = input.kind;
+  if (input.stage) v2.stage = input.stage;
+  if (input.rice) v2.rice = input.rice;
+  if (input.platforms) v2.platforms = input.platforms;
+  if (input.publish_date) v2.publish_date = input.publish_date;
+
   await writeEntry({
     type: "task",
     filePath,
@@ -74,6 +89,7 @@ export async function createTask(input: CreateTaskInput): Promise<EntryView> {
       due: input.due ?? null,
       created: nowISO,
       updated: nowISO,
+      ...v2,
     },
     content: body,
   });
