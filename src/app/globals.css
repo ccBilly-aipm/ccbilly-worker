@@ -235,3 +235,36 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ── Preset accent theming (blueprint B6) ─────────────────────────────────
+   PM mode leans electric cyan, creator mode leans nebula purple. Both stay
+   within the existing token system and remain AA-legible on the deep-space bg.
+   The `data-preset` attribute is set on <html> by the server layout. */
+:root[data-preset="pm"] {
+  --preset-accent: var(--aurora-cyan);
+}
+:root[data-preset="creator"] {
+  --preset-accent: var(--aurora-violet);
+}
+:root {
+  --preset-accent: var(--aurora-cyan);
+}
+
+.text-preset-accent {
+  color: rgb(var(--preset-accent));
+}
+.ring-preset-accent {
+  --tw-ring-color: rgb(var(--preset-accent) / 0.4);
+}
+
+/* Widget drag "lift" micro-animation (B6): the glass card rises slightly while
+   being dragged. Respected only when motion is allowed. */
+@media (prefers-reduced-motion: no-preference) {
+  .widget-dragging {
+    box-shadow: 0 12px 40px rgb(var(--preset-accent) / 0.25);
+    transform: translateY(-2px) scale(1.01);
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+}

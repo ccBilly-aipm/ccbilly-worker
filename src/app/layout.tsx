@@ -7,6 +7,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { CommandPalette } from "@/components/command/command-palette";
+import { KeyboardHelp } from "@/components/command/keyboard-help";
 import { PageTransition } from "@/components/layout/page-transition";
 import { readPreset } from "@/lib/preset/preset-service";
 
@@ -53,6 +54,7 @@ export default async function RootLayout({
     <html
       lang="zh-CN"
       suppressHydrationWarning
+      data-preset={preset}
       className={`${display.variable} ${sans.variable} ${mono.variable}`}
     >
       {/* suppressHydrationWarning: some browser extensions inject attributes
@@ -72,6 +74,7 @@ export default async function RootLayout({
           </div>
           <MobileNav preset={preset} />
           <CommandPalette />
+          <KeyboardHelp />
         </ThemeProvider>
       </body>
     </html>

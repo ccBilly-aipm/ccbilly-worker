@@ -63,7 +63,7 @@ function SortableWidget({
       className={cn(
         "col-span-1",
         SPAN[placement.w] ?? "md:col-span-2",
-        isDragging && "opacity-70",
+        isDragging && "opacity-70 widget-dragging",
       )}
     >
       <GlassCard className="h-full">

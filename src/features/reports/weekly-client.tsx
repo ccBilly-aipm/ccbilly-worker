@@ -6,6 +6,7 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CopyMarkdownButton } from "@/features/reports/copy-button";
 import { WeeklyBarChart, CollectionDonut } from "@/features/reports/weekly-charts";
+import { RetroWizard } from "@/features/reports/retro-wizard";
 import { isoWeekKey } from "@/lib/utils/date";
 
 interface WeeklyView {
@@ -145,6 +146,9 @@ export function WeeklyClient({ openCurrent }: { openCurrent?: boolean }) {
             {isFinal ? "已定稿" : "草稿"}
           </span>
         )}
+        <div className="ml-auto">
+          <RetroWizard week={week} />
+        </div>
       </header>
 
       {/* Charts always available (computed live) */}

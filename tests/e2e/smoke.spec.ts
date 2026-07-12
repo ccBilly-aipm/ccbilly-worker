@@ -63,7 +63,7 @@ test("command palette opens with Cmd/Ctrl+K", async ({ page }) => {
   await page.goto("/");
   await page.locator("body").click();
   await page.keyboard.press("ControlOrMeta+k");
-  await expect(page.getByPlaceholder(/搜索任务/)).toBeVisible();
+  await expect(page.getByPlaceholder(/搜索/)).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page.getByPlaceholder(/搜索任务/)).not.toBeVisible();
+  await expect(page.getByPlaceholder(/搜索/)).not.toBeVisible();
 });

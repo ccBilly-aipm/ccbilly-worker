@@ -8,6 +8,7 @@ import { KanbanBoard } from "@/features/tasks/kanban-board";
 import { TaskList } from "@/features/tasks/task-list";
 import { TaskDrawer } from "@/features/tasks/task-drawer";
 import { NewTaskDialog } from "@/features/tasks/new-task-dialog";
+import { SavedViewsBar } from "@/features/views/saved-views-bar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SkeletonCard } from "@/components/ui/skeleton";
 import { unwrapWikiLink } from "@/lib/markdown/wikilink";
@@ -22,11 +23,11 @@ export function TasksClient() {
   const [showNew, setShowNew] = useState(false);
   const params = useSearchParams();
 
-  // filters
-  const [q, setQ] = useState("");
-  const [fStatus, setFStatus] = useState("");
-  const [fPriority, setFPriority] = useState("");
-  const [fCollection, setFCollection] = useState("");
+  // filters (initialized from URL so saved views can restore them, B5.3)
+  const [q, setQ] = useState(() => params.get("q") ?? "");
+  const [fStatus, setFStatus] = useState(() => params.get("status") ?? "");
+  const [fPriority, setFPriority] = useState(() => params.get("priority") ?? "");
+  const [fCollection, setFCollection] = useState(() => params.get("collection") ?? "");
 
   // deep-links from command palette / dashboard
   useEffect(() => {
@@ -34,6 +35,18 @@ export function TasksClient() {
     const open = params.get("open");
     if (open) setOpenSlug(open);
   }, [params]);
+
+  // keep the URL in sync with the filters (so "save current view" captures them)
+  useEffect(() => {
+    const sp = new URLSearchParams();
+    if (q) sp.set("q", q);
+    if (fStatus) sp.set("status", fStatus);
+    if (fPriority) sp.set("priority", fPriority);
+    if (fCollection) sp.set("collection", fCollection);
+    const qs = sp.toString();
+    const next = qs ? `/tasks?${qs}` : "/tasks";
+    window.history.replaceState(null, "", next);
+  }, [q, fStatus, fPriority, fCollection]);
 
   const collections = useMemo(() => {
     const set = new Set<string>();
@@ -132,6 +145,9 @@ export function TasksClient() {
           options={collections.map((c) => [c, c] as [string, string])}
         />
       </div>
+
+      {/* Saved views (B5.3): name and restore a filter combo */}
+      <SavedViewsBar page="tasks" />
 
       {loading ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
