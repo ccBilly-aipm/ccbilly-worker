@@ -46,8 +46,25 @@
 | M6-4 | README + DELIVERY_REPORT 收尾 | M6 | ✅ 已完成 | README.md、docs/DELIVERY_REPORT.md |
 | VIS-1 | Part B 正式视觉素材（Logo/主题背景/空状态/404） | Visual | ✅ 已完成@codex-image | `public/assets/` 9 张 GPT Image 素材 |
 | VIS-2 | 素材接入到界面（favicon/logo/空状态/404） | Visual | ✅ 已完成@claude-main | icon.png、sidebar logo、EmptyState 真图；黑底包圆角玻璃容器；bg 保留 CSS |
+| S1-1 | XSS/Markdown 渲染净化（rehype-sanitize 管线） | S1 | ✅ 已完成@claude-main | render.ts 换管线、17 对抗+回归测试、移除 marked、ADR-013、SECURITY_AUDIT |
+| S1-2 | Skill 路径穿越/符号链接逃逸（realpath 校验） | S1 | ⬜ 待认领 | — |
+| S1-3 | SSRF /api/proxy allowlist + IP 校验 | S1 | ⬜ 待认领 | — |
+| S1-4 | 分层鉴权 AUTH_MODE + fail-closed 绑定 + 限速（ADR） | S1 | ⬜ 待认领 | — |
+| S1-5 | Git 命令注入审计 + zip 导出根固定 | S1 | ⬜ 待认领 | — |
+| S1-6 | 依赖供应链 pnpm audit + .nvmrc + 安全响应头/CSP | S1 | ⬜ 待认领 | — |
+| S2 | 健壮性与性能（边界/节流/渲染缓存/压测/FOUC） | S2 | ⬜ 待认领 | — |
+| S3 | 开源成熟度（CI/SECURITY/CONTRIBUTING/截图/去个人化/CHANGELOG） | S3 | ⬜ 待认领 | — |
+| S4 | 收尾交付（DELIVERY V1.1/tag v1.1.0） | S4 | ⬜ 待认领 | — |
 
 ## 4. 协作日志
+
+### 2026-07-12 11:30 [claude-main]
+- 完成：**S1-1 XSS/Markdown 渲染净化**（本轮 S 系列首个）。Bootstrap：通读遗留文档，把 DELIVERY_REPORT「已知限制」与 HANDBOOK「已知问题」并入本轮看板（S1–S4 已登记）。攻击面分析写入新建 `docs/SECURITY_AUDIT.md`：全仓检索确认 HTML 注入面**收敛到单一** `renderMarkdown`（knowledge 详情页 `dangerouslySetInnerHTML`），任务/日报/skill 正文都是 `<textarea>` 纯文本天然免疫。
+- 证明漏洞（先红）：10 个 XSS 向量（`<script>`/img onerror/svg onload/`javascript:`/`vbscript:`/`data:text/html`/事件属性/iframe·object·embed/frontmatter 走私/双链 alias 走私）**全部打穿**旧 `marked` 渲染器。
+- 修复（转绿）：`marked` → unified/rehype 管线（remark-parse→gfm→rehype 不透传 raw HTML→rehype-sanitize 白名单→stringify），AST 层白名单净化无绕过；扩展 schema 放行 task-list checkbox。10 攻击全封 + 7 合法内容（双链/代码块/表格/checklist/安全链接/标题强调列表）回归全保。移除 `marked` 依赖。
+- 变更：`pnpm verify` 全绿（**72 单测**，+17）；ADR-013 记录渲染管线切换。
+- 下一步：S1-2 Skill 路径穿越/符号链接逃逸（realpath 校验 + 全套对抗测试）。
+- 阻塞：无。
 
 ### 2026-07-10 16:55 [claude-main]
 - 完成：**VIS-2 素材接入**。核验 codex-image 交付的 9 张素材质量（app-icon 玻璃霓虹 cB、logo-wordmark、bg-dark/light 极光、4 空状态 3D 玻璃、404 小卫星），全部符合深空玻璃拟态风格。接入：app-icon → `src/app/icon.png`（favicon）+ 侧边栏圆角图标；EmptyState 4 种空态 + 404 改用真图（`ART_SRC` 映射，knowledge 复用 apps 图）。**黑底处理**：按 B哥 决策把黑底插画包进圆角玻璃容器（border + 青色辉光），暗/亮双主题都自洽（实机双主题截图确认）。
