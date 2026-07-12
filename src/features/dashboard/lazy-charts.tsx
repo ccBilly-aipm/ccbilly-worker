@@ -29,3 +29,9 @@ export const LazyBurndownChart = dynamic(
     import("@/features/dashboard/dashboard-charts").then((m) => m.BurndownChart),
   { ssr: false, loading: () => chartFallback },
 );
+
+export const LazyPlatformBars = dynamic(
+  () =>
+    import("@/features/dashboard/dashboard-charts").then((m) => m.PlatformBars),
+  { ssr: false, loading: () => chartFallback },
+);

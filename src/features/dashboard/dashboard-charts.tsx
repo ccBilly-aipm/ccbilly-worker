@@ -13,6 +13,8 @@ import {
   LineChart,
   Line,
   Legend,
+  BarChart,
+  Bar,
 } from "recharts";
 
 const BRAND = ["#22D3EE", "#818CF8", "#C084FC", "#34D399", "#FBBF24", "#60A5FA"];
@@ -144,6 +146,41 @@ export function BurndownChart({
           name="剩余"
         />
       </LineChart>
+    </ResponsiveContainer>
+  );
+}
+
+/** Cross-platform views comparison (blueprint B4.5). */
+export function PlatformBars({
+  data,
+}: {
+  data: { platform: string; views: number }[];
+}) {
+  if (data.length === 0)
+    return <p className="py-8 text-center text-sm text-muted">暂无数据</p>;
+  return (
+    <ResponsiveContainer width="100%" height={180}>
+      <BarChart data={data}>
+        <XAxis
+          dataKey="platform"
+          tick={{ fill: "rgb(var(--fg-muted))", fontSize: 11 }}
+          axisLine={false}
+          tickLine={false}
+        />
+        <YAxis
+          allowDecimals={false}
+          tick={{ fill: "rgb(var(--fg-muted))", fontSize: 10 }}
+          axisLine={false}
+          tickLine={false}
+          width={30}
+        />
+        <Tooltip contentStyle={TOOLTIP_STYLE} />
+        <Bar dataKey="views" name="阅读/播放" radius={[4, 4, 0, 0]}>
+          {data.map((_, i) => (
+            <Cell key={i} fill={BRAND[i % BRAND.length]} />
+          ))}
+        </Bar>
+      </BarChart>
     </ResponsiveContainer>
   );
 }
