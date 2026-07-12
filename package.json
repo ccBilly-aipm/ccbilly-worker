@@ -19,6 +19,7 @@
     "seed": "tsx scripts/seed.ts",
     "seed:stress": "tsx scripts/seed-stress.ts",
     "bench": "tsx scripts/bench.ts",
+    "screenshots": "tsx scripts/screenshots.ts",
     "reindex": "tsx scripts/reindex.ts"
   },
   "dependencies": {

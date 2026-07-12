@@ -10,6 +10,23 @@
 
 > **关于演示数据**：仓库自带的 `vault/` 内容全部由 `pnpm seed` 生成、仅供演示（任务/日报/技能等均为占位示例），不含任何真实个人数据。你可以直接删掉 `vault/` 里的内容从零开始，或改写成自己的。
 
+## 界面预览
+
+<p align="center">
+  <img src="docs/screenshots/dashboard-dark.png" alt="仪表盘 · 今日轨道（暗色）" width="100%">
+</p>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/kanban-dark.png" alt="任务看板"><br><sub>任务看板 · 拖拽改状态自动记动态</sub></td>
+    <td width="50%"><img src="docs/screenshots/daily-dark.png" alt="日报生成"><br><sub>日报 · 从任务动态一键聚合</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/dashboard-light.png" alt="仪表盘（亮色）"><br><sub>亮色主题（云海晨光）</sub></td>
+    <td width="50%" valign="middle"><sub>深空玻璃拟态，明暗双主题无 FOUC。截图由 <code>pnpm screenshots</code> 对演示数据自动生成，界面改版可一键重生成。</sub></td>
+  </tr>
+</table>
+
 ---
 
 ## 快速开始
