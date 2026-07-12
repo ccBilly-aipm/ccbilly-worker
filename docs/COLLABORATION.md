@@ -54,7 +54,7 @@
 | S1-6 | 依赖供应链 pnpm audit + .nvmrc + 安全响应头/CSP | S1 | ✅ 已完成@claude-main | audit 25→0、next/simple-git 等升级、.nvmrc、CSP+4 安全头、ADR-017 |
 | S2 | 健壮性与性能（边界/节流/渲染缓存/压测/FOUC） | S2 | ✅ 已完成@claude-main | 边界6测/批量索引+并发锁/渲染缓存/seed:stress+bench(P95≤33ms)/FOUC 3 E2E |
 | S3 | 开源成熟度（CI/SECURITY/CONTRIBUTING/截图/去个人化/CHANGELOG） | S3 | ✅ 已完成@claude-main | CI 实机绿(verify+22 E2E)、SECURITY/CONTRIBUTING/issue 模板、4 截图、去个人化、CHANGELOG、Docker 鉴权、ADR-018 |
-| S4 | 收尾交付（DELIVERY V1.1/tag v1.1.0） | S4 | ⬜ 待认领 | — |
+| S4 | 收尾交付（DELIVERY V1.1/tag v1.1.0） | S4 | ✅ 已完成@claude-main | DELIVERY V1.1、里程碑/看板/日志收尾、tag v1.1.0 |
 
 ## 4. 协作日志
 
