@@ -80,3 +80,28 @@ export async function setCollectionStatus(
   await indexFile(view.filePath, "collection");
   return getByFilePath(view.filePath)!;
 }
+
+/**
+ * Set (or clear) a collection's cycle (blueprint B3.2). A cycle {start,end}
+ * turns the collection into a sprint with a burndown. Passing null clears it.
+ */
+export async function setCollectionCycle(
+  slug: string,
+  cycle: { start: string; end: string } | null,
+): Promise<EntryView> {
+  const view = getBySlug("collection", slug);
+  if (!view) throw new Error(`合集不存在：${slug}`);
+  const { entry } = await readEntry(view.filePath, "collection");
+  if (!entry) throw new Error(`合集读取失败：${slug}`);
+  const data = { ...entry.data, updated: localISO() } as Record<string, unknown>;
+  if (cycle) data.cycle = cycle;
+  else delete data.cycle;
+  await writeEntry({
+    type: "collection",
+    filePath: view.filePath,
+    data,
+    content: entry.content,
+  });
+  await indexFile(view.filePath, "collection");
+  return getByFilePath(view.filePath)!;
+}

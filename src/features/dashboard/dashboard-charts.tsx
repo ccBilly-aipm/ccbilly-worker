@@ -10,6 +10,9 @@ import {
   PieChart,
   Pie,
   Cell,
+  LineChart,
+  Line,
+  Legend,
 } from "recharts";
 
 const BRAND = ["#22D3EE", "#818CF8", "#C084FC", "#34D399", "#FBBF24", "#60A5FA"];
@@ -92,6 +95,55 @@ export function DistributionPie({
         </Pie>
         <Tooltip contentStyle={TOOLTIP_STYLE} />
       </PieChart>
+    </ResponsiveContainer>
+  );
+}
+
+/** Cycle burndown (blueprint B3.2): remaining vs ideal across the cycle days. */
+export function BurndownChart({
+  data,
+}: {
+  data: { date: string; remaining: number; ideal: number }[];
+}) {
+  if (data.length === 0)
+    return <p className="py-12 text-center text-sm text-muted">暂无数据</p>;
+  const rows = data.map((d) => ({ day: d.date.slice(5), ...d }));
+  return (
+    <ResponsiveContainer width="100%" height={220}>
+      <LineChart data={rows}>
+        <XAxis
+          dataKey="day"
+          tick={{ fill: "rgb(var(--fg-muted))", fontSize: 10 }}
+          axisLine={false}
+          tickLine={false}
+        />
+        <YAxis
+          allowDecimals={false}
+          tick={{ fill: "rgb(var(--fg-muted))", fontSize: 10 }}
+          axisLine={false}
+          tickLine={false}
+          width={22}
+        />
+        <Tooltip contentStyle={TOOLTIP_STYLE} />
+        <Legend wrapperStyle={{ fontSize: 11 }} />
+        <Line
+          type="monotone"
+          dataKey="ideal"
+          stroke="rgba(129,140,248,0.6)"
+          strokeDasharray="4 4"
+          strokeWidth={1.5}
+          dot={false}
+          name="理想"
+        />
+        <Line
+          type="monotone"
+          dataKey="remaining"
+          stroke="#22D3EE"
+          strokeWidth={2}
+          dot={{ r: 2 }}
+          name="剩余"
+        />
+      </LineChart>
     </ResponsiveContainer>
   );
 }

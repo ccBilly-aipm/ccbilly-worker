@@ -23,3 +23,9 @@ export const LazyDistributionPie = dynamic(
     ),
   { ssr: false, loading: () => chartFallback },
 );
+
+export const LazyBurndownChart = dynamic(
+  () =>
+    import("@/features/dashboard/dashboard-charts").then((m) => m.BurndownChart),
+  { ssr: false, loading: () => chartFallback },
+);
