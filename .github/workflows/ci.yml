@@ -27,11 +27,14 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        # better-sqlite3 is a native module; allow its build script in CI.
-        run: pnpm install --frozen-lockfile
+        # Skip all postinstall build scripts (pnpm 11 otherwise fails with
+        # ERR_PNPM_IGNORED_BUILDS in CI). esbuild/sharp/unrs-resolver ship
+        # prebuilt binaries and don't need their postinstall for our tasks.
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Rebuild native modules
-        run: pnpm rebuild better-sqlite3
+      - name: Build native module (better-sqlite3)
+        # Runs better-sqlite3's own install (prebuild-install → prebuilt binary).
+        run: node scripts/build-native.mjs
 
       - name: Verify (lint + typecheck + unit tests + build)
         run: pnpm verify
