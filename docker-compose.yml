@@ -6,8 +6,15 @@ services:
     ports:
       - "3000:3000"
     environment:
-      # Set a real passcode; this only guards /admin against accidental local clicks.
+      # A container is an EXPOSED deployment (reachable beyond localhost), so we
+      # default to passcode auth: every mutation API — not just /admin — then
+      # requires a login session. Set a STRONG passcode via a .env file or your
+      # shell before `docker compose up`. Do NOT ship the default 'changeme'.
+      AUTH_MODE: ${AUTH_MODE:-passcode}
       ADMIN_PASSCODE: ${ADMIN_PASSCODE:-changeme}
+      # If you deliberately run behind another auth layer and want it open, set
+      # AUTH_MODE=none explicitly — but then the fail-closed guard will reject
+      # non-localhost mutations, so you'd also need to front it with a proxy.
       CCBILLY_NO_WATCH: "0"
     volumes:
       # Host vault/ ↔ container: data stays on host, Git-tracked.

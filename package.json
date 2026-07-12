@@ -1,6 +1,6 @@
 {
-  "name": "ccbilly-workspace",
-  "version": "0.1.0",
+  "name": "ccbilly-worker",
+  "version": "1.1.0",
   "private": true,
   "packageManager": "pnpm@11.11.0",
   "engines": {

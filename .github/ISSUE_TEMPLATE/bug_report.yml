@@ -1,0 +1,42 @@
+name: Bug 报告
+description: 报告一个可复现的问题
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！请尽量填全，方便复现。安全漏洞请**勿**走这里——见 [SECURITY.md](../blob/main/SECURITY.md)。
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么
+      description: 清楚描述问题现象。
+      placeholder: 我做了 X，期望 Y，实际发生了 Z。
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 打开 …
+        2. 点击 …
+        3. 看到 …
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: 环境
+      description: OS / Node 版本 / 浏览器 / AUTH_MODE / 部署姿势（本机 or Docker）
+      placeholder: "macOS 15 · Node 22 · Chrome · AUTH_MODE=none · localhost"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相关日志 / 截图
+      description: 终端输出、浏览器 console 错误、截图等。
+    validations:
+      required: false

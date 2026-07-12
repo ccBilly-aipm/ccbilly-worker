@@ -2,7 +2,7 @@
 
 > 本地优先（local-first）的个人工作台 —— 任务 / 合集 / 日报 / 周报 / Skill 管理 / 知识库 / 应用中心 / 后台管理，深空玻璃拟态视觉，明暗双主题。
 
-![Next.js](https://img.shields.io/badge/Next.js-15-black) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6) ![License](https://img.shields.io/badge/License-MIT-green) ![Data](https://img.shields.io/badge/data-Markdown--first-6ee7ff)
+[![CI](https://github.com/ccBilly-aipm/ccbilly-worker/actions/workflows/ci.yml/badge.svg)](https://github.com/ccBilly-aipm/ccbilly-worker/actions/workflows/ci.yml) ![Next.js](https://img.shields.io/badge/Next.js-15-black) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6) ![License](https://img.shields.io/badge/License-MIT-green) ![Data](https://img.shields.io/badge/data-Markdown--first-6ee7ff)
 
 一个把「任务进度跟进 → 自动生成日报/周报」跑成无手工拷贝闭环的个人工作台。数据不锁进数据库，而是一堆干净的 Markdown 文件，你随时能用 Obsidian 打开、用 Git 同步、粘进飞书。用 Next.js 15 + TypeScript 构建，`vault/` 里附带一套演示数据，`pnpm install && pnpm dev` 即可开跑。
 
@@ -68,23 +68,38 @@ better-sqlite3 是原生模块，需要在本机编译一次。pnpm 默认会拦
 pnpm rebuild better-sqlite3
 ```
 
-## 后台口令
+## 安全模型与三种部署姿势
 
-后台 `/admin` 用环境变量 `ADMIN_PASSCODE` + httpOnly cookie 做简单口令保护。复制 `.env.example` 为 `.env.local` 并设置：
+工作台按「本机默认零配置、暴露场景强制安全」设计，用 `AUTH_MODE` 环境变量分层（详见 [SECURITY.md](SECURITY.md) 与 [docs/SECURITY_AUDIT.md](docs/SECURITY_AUDIT.md)）：
 
-```
-ADMIN_PASSCODE=你的口令
-```
-
-> ⚠️ **此鉴权仅防本机误触**。若你把工作台部署到公网，必须另加真正的认证层（反向代理鉴权 / OAuth 等）。
-
-## Docker 部署（可选）
+### 1）本机单人（默认）— `AUTH_MODE=none`
 
 ```bash
-docker compose up --build      # 构建并启动，访问 http://localhost:3000
+pnpm dev            # localhost:3000，所有写操作免登录，体验最顺
 ```
 
-`vault/` 通过卷挂载持久化。详见 `docker-compose.yml`。
+只在本机 `localhost` 使用时无需任何配置。**只要别把端口暴露到局域网/公网即可。** 若真有非本机地址访问进来而你没启用鉴权，写操作会被 **fail-closed 拒绝**并提示配置（不会裸奔）。
+
+### 2）局域网 / 公网 — `AUTH_MODE=passcode`
+
+对外暴露时**必须**启用口令鉴权。复制 `.env.example` 为 `.env.local`：
+
+```
+AUTH_MODE=passcode
+ADMIN_PASSCODE=一个强口令
+```
+
+此时**所有写操作**（不只 `/admin`）都需要先登录后台会话。口令用常数时间比较、登录限速、会话 cookie `HttpOnly + SameSite=Strict`。
+
+> ⚠️ 这是**单用户级**口令鉴权，不是多租户认证。在不可信网络暴露时，请在前面再加一层反向代理鉴权（OAuth / mTLS 等）。
+
+### 3）Docker
+
+```bash
+docker compose up --build      # 访问 http://localhost:3000
+```
+
+`docker-compose.yml` **默认注入 `AUTH_MODE=passcode`**（容器等同暴露场景）。上线前把 `ADMIN_PASSCODE` 改成强口令，别用默认的 `changeme`。`vault/` 通过卷挂载持久化到宿主机、随 Git 同步。
 
 ---
 

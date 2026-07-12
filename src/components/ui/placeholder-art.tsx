@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils/cn";
 
 /**
  * Pure-SVG glassmorphism placeholder illustrations (HANDBOOK ADR-007).
- * These stand in for the GPT Image 2 assets B哥 will drop into public/assets/
+ * These stand in for real art assets that can be dropped into public/assets/
  * later. Swapping is a one-line change per empty state.
  */
 
