@@ -56,9 +56,9 @@
 | S3 | 开源成熟度（CI/SECURITY/CONTRIBUTING/截图/去个人化/CHANGELOG） | S3 | ✅ 已完成@claude-main | CI 实机绿(verify+22 E2E)、SECURITY/CONTRIBUTING/issue 模板、4 截图、去个人化、CHANGELOG、Docker 鉴权、ADR-018 |
 | S4 | 收尾交付（DELIVERY V1.1/tag v1.1.0） | S4 | ✅ 已完成@claude-main | DELIVERY V1.1、里程碑/看板/日志收尾、tag v1.1.0 |
 | V2-M1a | 数据 schema 扩展 kind/rice/stage/platforms/metrics/cycle + 索引列 | V2-M1 | ✅ 已完成@claude-main | schema.ts 子类型、索引 kind/score/stage 列、passthrough 兼容 |
-| V2-M1b | 迁移脚本 pnpm migrate（zip 备份先行，可逆）+ 旧 vault 回归 | V2-M1 | ⬜ 待认领 | — |
-| V2-M1c | 角色预设层（preset 定义/切换/持久 vault/config/preset.md）+ 模块注册表 | V2-M1 | ⬜ 待认领 | — |
-| V2-M1d | Widget 化仪表盘（注册表/拖拽/宽度/布局存 vault/config/dashboard.md） | V2-M1 | ⬜ 待认领 | — |
+| V2-M1b | 迁移脚本 pnpm migrate（zip 备份先行，可逆）+ 旧 vault 回归 | V2-M1 | ✅ 已完成@claude-main | backup.ts+migrate.ts、幂等非破坏、5 测、真 vault 回归 0 改动 |
+| V2-M1c | 角色预设层（preset 定义/切换/持久 vault/config/preset.md）+ 模块注册表 | V2-M1 | ✅ 已完成@claude-main | preset 三预设+持久、nav 按 preset 过滤、onboarding、2 E2E、ADR-020 |
+| V2-M1d | Widget 化仪表盘（注册表/拖拽/宽度/布局存 vault/config/dashboard.md） | V2-M1 | ✅ 已完成@claude-main | widget 注册表+dnd 拖拽+宽度、布局存 dashboard.md、quick-capture inbox、ADR-021 |
 | V2-M2 | PM 模块包 B3 六项（需求池/周期燃尽/路线图/决策日志/纪要转任务/模板包） | V2-M2 | ⬜ 待认领 | — |
 | V2-M3 | 创作者模块包 B4 六项（选题库/内容看板/排期日历/多平台/数据复盘/情报源） | V2-M3 | ⬜ 待认领 | — |
 | V2-M4 | 通用体验 B5 五项 + B6 视觉增量 | V2-M4 | ⬜ 待认领 | — |
@@ -66,6 +66,16 @@
 | V2-M6 | 审核与上线（REVIEW_V2/README/CHANGELOG/DELIVERY/tag v2.0.0/release） | V2-M6 | ⬜ 待认领 | — |
 
 ## 4. 协作日志
+
+### 2026-07-12 20:30 [claude-main]
+- 完成：**V2-M1 架构底座全部交付**（双角色版起步）。Bootstrap：读毕蓝图 Part A/B，蓝图入库 `docs/BLUEPRINT-V2.md`，登记 V2 看板，写 ADR-019~023。
+  - **M1a schema 扩展**：task 加可选 `kind:task|requirement|content` 子类型（复用整条 task 管道），requirement 加 rice+stage、content 加 platforms/publish_date/stage/metrics、合集加可选 cycle；全可选+passthrough → 旧文件零改动。索引加 kind/score/stage 列 + schema-version 守卫（旧 V1 cache 自动重建）。10 单测。
+  - **M1b 迁移**：`pnpm migrate` 先 zip 备份（可逆红线）再幂等非破坏建 V2 目录；**真 seed vault 实测 `git diff` 零改动**。5 单测。
+  - **M1c 预设层**：pm/creator/both 三预设持久到 `vault/config/preset.md`，nav 按 preset 过滤（sidebar+mobile），/onboarding 三屏可跳过，首次访问自动引导；预设切换只改展示、不动数据（ADR-020）。2 E2E。
+  - **M1d Widget 仪表盘**：dnd-kit 拖拽 Bento 网格 + 宽度循环，布局按预设存 `vault/config/dashboard.md`（净化防注入）；10 widget；快速捕捉 inbox（capture→triage 为任务/需求/选题，防穿越）。2 E2E。
+- 变更：`pnpm verify` 全绿（**176 单测**）；**26 E2E 全通过**；V1.1 全部安全对抗测试持续绿（未变红）。
+- 下一步：V2-M2 PM 模块包（B3 六项）。
+- 阻塞：无。
 
 ### 2026-07-12 18:00 [claude-main]
 - 完成：**S3 开源成熟度全部交付**。①**CI**：`.github/workflows/ci.yml`（verify 作业 + Playwright e2e 作业），**实机跑绿**（147 单测 + 22 E2E），README 加 CI 徽章。②社区文档：`SECURITY.md`（三种部署姿势 + 审计摘要 + 漏洞报告）、`CONTRIBUTING.md`、bug/feature issue 模板。③**README 截图**：`pnpm screenshots`（scripts/screenshots.ts）对演示数据自动截暗色仪表盘/看板/日报/亮色仪表盘 4 张，嵌入 README 顶部。④去个人化：默认称呼「朋友」、meta 与残留注释清理。⑤版本化：package.json name→`ccbilly-worker`、version→`1.1.0`，写 `CHANGELOG.md`。⑥Docker：compose 默认 `AUTH_MODE=passcode`，README 加三姿势安全部署段。
@@ -147,25 +157,7 @@
 - 下一步：M6 打磨 — 仪表盘「今日轨道」签名元素 + 趋势/分布/热力图、命令面板增强、动效与空状态全量、无障碍/Lighthouse、README/交付报告收尾。
 - 阻塞：无。
 
-### 2026-07-10 14:35 [claude-main]
-- 完成：**M4 Skill 双模块 + 知识库全部交付**。Tab A（真实 SKILL.md 扫描/查看/编辑，编辑前备份到该 root 的 .trash，保留 allowed-tools 等未知字段，附属文件树，个人级覆盖项目级标注，新建/删除按 ADR-006 占位禁用）；Tab B 个人技能树（分类矩阵卡墙 + 雷达图 + 学习记录一键追加 + 反链）；知识库（列表/详情、Markdown 渲染、[[双链]]→可点链接、反链面板）。**红线守卫**：所有 skill FS 操作过白名单 + 防 ../ / 绝对路径 / 符号链接穿越。
-- 变更：`pnpm verify` 全绿（50 单测，含 4 项穿越红线测试）；11 E2E 全通过，含在隔离临时 skills 目录扫描/编辑真实 SKILL.md（保留未知字段）。确认真实 ~/.claude/skills（39 个）与真实 vault 全程零改动。
-- 下一步：M5-1 应用中心（link/iframe 降级/proxy 骨架）→ M5 后台全面板 + Git 同步面板。
-- 阻塞：无。
-
-### 2026-07-10 14:20 [claude-main]
-- 完成：**M3 报告系统全部交付**。日报聚合（读全量任务 动态、按 完成/推进/新建/受阻 归类、填固定五段模板、明日计划预填高优未完成）、重新聚合的增量合并（不覆盖手写内容）、编辑/失焦保存/定稿、月历浏览、复制为纯 Markdown（飞书友好）；周报聚合（完成/新建数 + 各合集投入占比）、两张 Recharts 图（每日完成柱状 + 合集分布环）、编辑/定稿/导出 .md。
-- 变更：`pnpm verify` 全绿（39 单测，含增量合并不覆盖手写的验证）；9 个 E2E 全通过，覆盖「新建任务→生成日报→编辑→定稿→磁盘 status:final」完整无手工拷贝链路 + 周报生成。
-- 下一步：M4-1 Claude Code Skills 扫描/查看/编辑（编辑前备份到 .trash）+ 白名单防路径穿越（红线）。
-- 阻塞：无（Git 远端未配置，本地提交照常）。
-
-### 2026-07-10 14:05 [claude-main]
-- 完成：**M2 任务系统全部交付**。任务/合集 service（写 .md→追加动态→重建索引）、Route Handlers、列表视图（筛选/排序/搜索）、看板（dnd-kit 拖拽改 status 并自动记动态）、详情抽屉（状态切换/进度滑杆/子任务勾选/正文编辑/动态时间线）、合集墙（进度环+归档）+ 合集详情页。
-- 变更：`pnpm verify` 全绿（32 单测 + build）；7 个 E2E 全通过，覆盖「新建→改状态→动态日志→磁盘 .md 一致」与「Obsidian 外部写文件→UI 自动刷新」两大验收项。修复 tsbuildinfo 误提交（已 gitignore）。
-- 下一步：M3-1 日报聚合（完成/推进/新建/受阻分类，复制为 Markdown）。
-- 阻塞：无（Git 远端仍未配置，本地提交照常）。
-
-> 更早的 Bootstrap / M1 起始日志已归档至 `docs/logs/archive-202607.md`（主文件保留最近 15 条）。
+> 更早的 Bootstrap / M1–M4 起始日志已归档至 `docs/logs/archive-202607.md`（主文件保留最近 15 条）。
 
 ## 5. 给 B哥 的人话进度
 

@@ -13,3 +13,15 @@
 - 变更：创建 docs/HANDBOOK.md、docs/COLLABORATION.md（本文件）；建立 ADR-001~010、任务看板 B0/M1–M6。
 - 下一步：创建 CLAUDE.md + AGENTS.md → 脚手架 Next.js → 配置 pnpm verify → git init + 首次 commit。
 - 阻塞：无。
+
+### 2026-07-10 14:35 [claude-main]
+- 完成：**M4 Skill 双模块 + 知识库全部交付**。（详见 git 历史 M4 commit）
+- 变更：`pnpm verify` 全绿（50 单测）；11 E2E 全通过。
+
+### 2026-07-10 14:20 [claude-main]
+- 完成：**M3 报告系统全部交付**（日报/周报聚合、图表、复制 Markdown）。
+- 变更：`pnpm verify` 全绿（39 单测）；9 E2E 全通过。
+
+### 2026-07-10 14:05 [claude-main]
+- 完成：**M2 任务系统全部交付**（任务/合集、看板拖拽、详情抽屉）。
+- 变更：`pnpm verify` 全绿（32 单测）；7 E2E 全通过。
