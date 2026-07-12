@@ -7,14 +7,16 @@ import { test, expect } from "@playwright/test";
  * their milestones. RED LINE: E2E never touches real ~/.claude/skills/.
  */
 
-test("dashboard loads and greets B哥", async ({ page }) => {
+test("dashboard loads and greets the configured name", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (m) => {
     if (m.type() === "error") errors.push(m.text());
   });
 
   await page.goto("/");
-  await expect(page.getByText("B哥")).toBeVisible();
+  // default display name is the neutral 「朋友」 (S3 de-personalization); the
+  // greeting embeds it (e.g. 「下午好，朋友」).
+  await expect(page.getByText("朋友")).toBeVisible();
   // sidebar nav present (both desktop sidebar and mobile bottom nav have this
   // link; assert at least one is visible)
   await expect(page.getByRole("link", { name: "仪表盘" }).first()).toBeVisible();

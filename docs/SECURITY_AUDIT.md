@@ -124,6 +124,40 @@ _状态：见修复状态表。_
 
 ---
 
+## S1-4 · 鉴权模型（本轮最重要的架构决策）
+
+### 攻击面分析
+
+**现状（实测确认）**：
+- **只有 `/admin` UI 页**经 `admin/layout.tsx` 的 `isAdminAuthed()` 服务端检查；**所有 mutation API 无鉴权**——`tasks/skills/collections/reports/git/export/settings` 的 POST/PUT/PATCH/DELETE 路由**没有一个**导入 `isAdminAuthed`（全仓检索：仅 `admin/layout.tsx` 用到）。
+- `verifyPasscode` 用 `input === pass`（**非常数时间**，可计时侧信道）。
+- cookie `sameSite:"lax"`（admin 应 strict）；登录接口**无速率限制**（可暴力枚举口令）。
+- `next dev` / `next start` 默认绑定 `0.0.0.0`（Next 默认监听所有网卡）。
+
+**信任边界 & 影响**：
+- 本机单人：无鉴权 mutation 是**可接受的便利**（红线要求：localhost 零配置免登录）。
+- **但开源后他人以 `next start -H 0.0.0.0` 或 Docker 对外部署**时：局域网/公网任何人都能**免鉴权**调用 `POST /api/skills/...`（写 `~/.claude/skills/`）、`POST /api/git/sync`（用本机 Git 凭据推送）、`GET /api/admin/export`（下载整个 vault）。**等于把整台机器的 skills 目录 + Git 凭据 + 全部数据暴露给网络。严重度：Critical。**
+
+### 分层安全模型（fail-closed）
+
+遵循「本机默认体验不降级，暴露场景安全强制」：
+1. `AUTH_MODE=none|passcode`（默认 `none`）。
+2. `AUTH_MODE=passcode`：**所有 mutation API**（非只 `/admin`）+ admin 页必须携带有效会话 cookie；未携带 → 401。
+3. **fail-closed 暴露闸**：请求 `Host` 为非 localhost（局域网/公网/Docker）**且**（`AUTH_MODE!=passcode` 或未设口令）→ mutation 直接 **403 + 配置指引**（而非裸奔）。localhost 请求不受影响（体验零降级）。
+4. 口令比较用 `crypto.timingSafeEqual`（常数时间）；登录接口速率限制（5 次/分钟/IP）；会话 cookie `HttpOnly + SameSite=Strict + Secure(生产)`；admin mutation 附自定义 header `x-ccbilly-admin: 1` 作 CSRF 双保险。
+
+### 对抗性测试（先红）
+
+`tests/unit/auth.test.ts`：常数时间比较正确性、token 校验、`shouldBlockMutation(mode, hasSession, host, passcodeSet)` 决策矩阵（本机 none 放行 / 暴露 none 拒绝 / passcode 无 session 拒绝 / passcode 有 session 放行 / 暴露 passcode 无口令拒绝）、速率限制器 5 次后拦截。
+
+### 修复（转绿）
+
+见 ADR-016：强化 `auth.ts`（timingSafeEqual + 更强 token + strict cookie + 限速器）；新增 `src/middleware.ts` 统一在 `/api/*` 与 `/admin` 施加分层模型；新增 `src/lib/admin/exposure.ts` 决策纯函数（可单测）。
+
+_状态：见修复状态表。_
+
+---
+
 ## 修复状态表
 
 | 面 | 攻击面分析 | 对抗测试 | 修复 | 状态 |
@@ -131,3 +165,4 @@ _状态：见修复状态表。_
 | S1-1 XSS/Markdown | ✅ | ✅ 17 用例（10 攻击 + 7 回归） | ✅ rehype-sanitize 管线（ADR-013） | ✅ 完成 |
 | S1-2 路径穿越/符号链接 | ✅（发现写不存在路径经软链父目录逃逸的真实洞） | ✅ 8 用例（相对/绝对/反斜杠/NUL/软链读/**软链父写**/saveSkill/.trash 逃逸） | ✅ 最近存在祖先 realpath 校验 + NUL 拒绝（ADR-014） | ✅ 完成 |
 | S1-3 SSRF 反向代理 | ✅（环回/私网/元数据/重定向绕过全列举） | ✅ 29 用例（多notation IP 分类 + 端到端 + allowInternal 语义 + 元数据永拒） | ✅ ssrf.ts IP 校验 + 逐跳重定向重校验 + 敏感头剥离 + 10MB 上限 + fail-closed 开关（ADR-015） | ✅ 完成 |
+| S1-4 鉴权模型 | ✅（确认所有 mutation API 无鉴权 → 暴露即整机沦陷，Critical） | ✅ 19 单测（决策矩阵/常数时间/token/限速）+ 2 E2E（localhost 放行 vs 暴露 403 fail-closed） | ✅ middleware 分层模型 + timingSafeEqual + HMAC token + strict cookie + 限速（ADR-016） | ✅ 完成 |

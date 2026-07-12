@@ -49,7 +49,7 @@
 | S1-1 | XSS/Markdown 渲染净化（rehype-sanitize 管线） | S1 | ✅ 已完成@claude-main | render.ts 换管线、17 对抗+回归测试、移除 marked、ADR-013、SECURITY_AUDIT |
 | S1-2 | Skill 路径穿越/符号链接逃逸（realpath 校验） | S1 | ✅ 已完成@claude-main | paths.ts 最近祖先 realpath 校验、8 对抗测试、ADR-014 |
 | S1-3 | SSRF /api/proxy allowlist + IP 校验 | S1 | ✅ 已完成@claude-main | net/ssrf.ts、29 对抗测试、逐跳重校验、fail-closed 开关、ADR-015 |
-| S1-4 | 分层鉴权 AUTH_MODE + fail-closed 绑定 + 限速（ADR） | S1 | ⬜ 待认领 | — |
+| S1-4 | 分层鉴权 AUTH_MODE + fail-closed 绑定 + 限速（ADR） | S1 | ✅ 已完成@claude-main | middleware.ts、exposure.ts、auth.ts 强化、19 单测+2 E2E、ADR-016 |
 | S1-5 | Git 命令注入审计 + zip 导出根固定 | S1 | ⬜ 待认领 | — |
 | S1-6 | 依赖供应链 pnpm audit + .nvmrc + 安全响应头/CSP | S1 | ⬜ 待认领 | — |
 | S2 | 健壮性与性能（边界/节流/渲染缓存/压测/FOUC） | S2 | ⬜ 待认领 | — |
@@ -57,6 +57,13 @@
 | S4 | 收尾交付（DELIVERY V1.1/tag v1.1.0） | S4 | ⬜ 待认领 | — |
 
 ## 4. 协作日志
+
+### 2026-07-12 14:00 [claude-main]
+- 完成：**S1-4 分层鉴权模型**（本轮最重架构决策）。实测确认原实现**只有 /admin UI 有口令，所有 mutation API 无鉴权**（写真实 skills、Git、导出 vault 全裸奔）——他人 `-H 0.0.0.0`/Docker 对外部署即把整机 skills 目录 + Git 凭据暴露给网络（Critical）。
+- 设计（遵循「本机零降级、暴露强制安全」）：`AUTH_MODE=none|passcode`（默认 none）；新增 `src/middleware.ts` 统一在 `/api/*`+`/admin` 施加；`src/lib/admin/exposure.ts` 决策纯函数（可单测）。passcode 模式：所有 mutation 需会话；**fail-closed 暴露闸**：非 localhost 访问且未启用鉴权 → mutation 直接 403+配置指引；localhost 请求零影响。强化 `auth.ts`：`crypto.timingSafeEqual` 常数时间比较、HMAC-SHA256 token、cookie `HttpOnly+SameSite=Strict+Secure(prod)`；登录 5 次/分钟限速。
+- 变更：`pnpm verify` 全绿（**128 单测**，+19）；**19 E2E 全通过**（新增 2 个暴露测试：localhost mutation 放行 vs 伪造公网 Host mutation 403、读请求永不拦截）；`.env.example` 补 `AUTH_MODE` 说明；ADR-016。
+- 下一步：S1-5 Git 命令注入审计 + zip 导出根固定。
+- 阻塞：无。
 
 ### 2026-07-12 12:55 [claude-main]
 - 完成：**S1-3 SSRF 反向代理加固**。攻击面：原 `/api/proxy` 只校验 `^https?://`，可把 `proxyBaseUrl` 设为 `127.0.0.1:8003`(oMLX)/`169.254.169.254`(云元数据)/内网地址 → 服务端替攻击者访问内网；`follow` 重定向还能 302 跳内网绕过。写 29 个对抗测试（多 notation IP：dotted/decimal/hex/IPv4-mapped-IPv6，环回/私网/链路本地/CGNAT/多播/元数据全覆盖）。

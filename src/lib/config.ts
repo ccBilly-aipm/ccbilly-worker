@@ -77,3 +77,9 @@ export function projectSkillRoots(): string[] {
 export function isE2E(): boolean {
   return process.env.CCBILLY_E2E === "1";
 }
+
+/** Auth mode (S1-4). "none" = localhost single-user convenience; "passcode" = all
+ * mutations require a session. Default "none". */
+export function authMode(): "none" | "passcode" {
+  return process.env.AUTH_MODE === "passcode" ? "passcode" : "none";
+}

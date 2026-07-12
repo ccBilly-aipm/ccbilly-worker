@@ -1,22 +1,39 @@
 import { cookies } from "next/headers";
+import crypto from "node:crypto";
 
 /**
- * Admin passcode auth (spec §6.8). RED-FLAG in README: this only guards against
- * accidental local clicks — NOT real security. Public deploys must add a real
- * auth layer. The cookie is httpOnly and holds a derived token, not the passcode.
+ * Admin passcode auth (spec §6.8, hardened in S1-4 / ADR-016).
+ *
+ * In AUTH_MODE=none this only guards accidental local clicks. In
+ * AUTH_MODE=passcode it is a real (single-user) auth gate: all mutation APIs
+ * require the session cookie (enforced in middleware). The cookie holds an
+ * HMAC-derived token, never the passcode; the passcode is compared in constant
+ * time. See docs/SECURITY_AUDIT.md §S1-4.
  */
 
 const COOKIE_NAME = "ccbilly_admin";
 
-function expectedToken(): string {
-  const pass = process.env.ADMIN_PASSCODE ?? "";
-  // simple non-reversible-ish token; sufficient for local misclick protection
-  let h = 2166136261;
-  for (let i = 0; i < pass.length; i++) {
-    h ^= pass.charCodeAt(i);
-    h = Math.imul(h, 16777619);
+/** Constant-time string equality (avoids timing side-channels). */
+export function timingSafeEqualStr(a: string, b: string): boolean {
+  const ba = Buffer.from(a, "utf8");
+  const bb = Buffer.from(b, "utf8");
+  if (ba.length !== bb.length) {
+    // still do a comparison against self to keep timing roughly constant
+    crypto.timingSafeEqual(ba, ba);
+    return false;
   }
-  return `v1.${(h >>> 0).toString(36)}`;
+  return crypto.timingSafeEqual(ba, bb);
+}
+
+/**
+ * Session token = HMAC-SHA256(passcode, fixed label). Deterministic per passcode
+ * (so it validates across requests without server-side session storage), but not
+ * reversible to the passcode.
+ */
+export function expectedToken(): string {
+  const pass = process.env.ADMIN_PASSCODE ?? "";
+  const mac = crypto.createHmac("sha256", pass).update("ccbilly-admin-v2").digest("hex");
+  return `v2.${mac.slice(0, 32)}`;
 }
 
 /** Whether a passcode is configured at all. */
@@ -26,22 +43,29 @@ export function isPasscodeConfigured(): boolean {
 
 export function verifyPasscode(input: string): boolean {
   const pass = process.env.ADMIN_PASSCODE ?? "";
-  return Boolean(pass) && input === pass;
+  if (!pass) return false;
+  return timingSafeEqualStr(input, pass);
+}
+
+/** Validate a raw cookie token value (constant-time). */
+export function isValidToken(token: string | undefined): boolean {
+  if (!token) return false;
+  return timingSafeEqualStr(token, expectedToken());
 }
 
 export async function isAdminAuthed(): Promise<boolean> {
-  // if no passcode configured, allow (single-user local convenience) but the UI
-  // shows a warning to set one.
-  if (!isPasscodeConfigured()) return true;
+  // AUTH_MODE=none + no passcode → allow (single-user local convenience); UI warns.
+  if (process.env.AUTH_MODE !== "passcode" && !isPasscodeConfigured()) return true;
   const store = await cookies();
-  return store.get(COOKIE_NAME)?.value === expectedToken();
+  return isValidToken(store.get(COOKIE_NAME)?.value);
 }
 
 export async function setAdminCookie(): Promise<void> {
   const store = await cookies();
   store.set(COOKIE_NAME, expectedToken(), {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });
@@ -51,3 +75,5 @@ export async function clearAdminCookie(): Promise<void> {
   const store = await cookies();
   store.delete(COOKIE_NAME);
 }
+
+export { COOKIE_NAME };
