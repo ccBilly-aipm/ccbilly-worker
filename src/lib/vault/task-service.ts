@@ -201,6 +201,16 @@ export async function toggleTaskSubtask(
   return persist(entry.filePath, data, content);
 }
 
+/** Append a manual activity line to a task's 动态 timeline (used by MCP). */
+export async function appendTaskActivity(
+  slug: string,
+  text: string,
+): Promise<EntryView> {
+  const entry = await loadTask(slug);
+  const content = appendActivity(entry.content, localTimestamp(), text.trim());
+  return persist(entry.filePath, { ...entry.data, updated: localISO() }, content);
+}
+
 /** Archive = soft state change (keeps the file). Delete = move to vault trash. */
 export async function archiveTask(slug: string): Promise<EntryView> {
   return updateTaskStatus(slug, "archived");
