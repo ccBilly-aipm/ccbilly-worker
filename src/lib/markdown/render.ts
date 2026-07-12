@@ -42,8 +42,17 @@ const processor = unified()
   .use(rehypeSanitize, schema)
   .use(rehypeStringify);
 
-/** knowledge slug resolver: default maps target → /knowledge/<target>. */
-export function renderMarkdown(
+/**
+ * Bounded render cache (S2-3). Output depends solely on the input markdown, so
+ * keying on the content string is naturally mtime-correct: an edited file has
+ * different content → a cache miss. Only the default resolver is cached (custom
+ * resolvers are rare and would need to be part of the key). Simple FIFO eviction
+ * keeps memory bounded on a large vault.
+ */
+const RENDER_CACHE_MAX = 512;
+const renderCache = new Map<string, string>();
+
+function renderUncached(
   md: string,
   linkResolver?: (target: string) => string,
 ): string {
@@ -59,6 +68,32 @@ export function renderMarkdown(
     return `[${label}](${href})`;
   });
   return String(processor.processSync(withLinks));
+}
+
+/** knowledge slug resolver: default maps target → /knowledge/<target>. */
+export function renderMarkdown(
+  md: string,
+  linkResolver?: (target: string) => string,
+): string {
+  // Only the default (resolver-less) path is memoized.
+  if (linkResolver) return renderUncached(md, linkResolver);
+
+  const hit = renderCache.get(md);
+  if (hit !== undefined) return hit;
+
+  const html = renderUncached(md);
+  if (renderCache.size >= RENDER_CACHE_MAX) {
+    // evict oldest (FIFO)
+    const oldest = renderCache.keys().next().value;
+    if (oldest !== undefined) renderCache.delete(oldest);
+  }
+  renderCache.set(md, html);
+  return html;
+}
+
+/** Test/maintenance helper: clear the render cache. */
+export function clearRenderCache(): void {
+  renderCache.clear();
 }
 
 export { parseWikiLinks };

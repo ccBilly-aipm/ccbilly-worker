@@ -101,6 +101,57 @@ export async function indexFile(
   else if (broken) upsertBroken(broken);
 }
 
+/**
+ * Batch incremental update (S2-2): read all changed/removed files, then apply
+ * every write inside a SINGLE transaction. A change storm (e.g. `git pull`
+ * bringing in 500 files) coalesces into one commit instead of N, which is both
+ * far faster and crash-consistent. Reads happen outside the transaction (I/O),
+ * writes inside it.
+ */
+export async function applyChanges(changed: string[], removed: string[]): Promise<{
+  indexed: number;
+  broken: number;
+  removed: number;
+}> {
+  // Read (I/O) outside the transaction.
+  const results = await Promise.all(
+    changed.map(async (filePath) => {
+      try {
+        return { filePath, ...(await readEntry(filePath)) };
+      } catch (err) {
+        return {
+          filePath,
+          broken: {
+            filePath,
+            slug: filePath,
+            type: "unknown" as BrokenEntry["type"],
+            error: `读取失败：${(err as Error).message}`,
+            mtimeMs: 0,
+          } as BrokenEntry,
+        };
+      }
+    }),
+  );
+
+  let indexed = 0;
+  let brokenN = 0;
+  const db = getDb();
+  const tx = db.transaction(() => {
+    for (const filePath of removed) removeFile(filePath);
+    for (const r of results) {
+      if (r.entry) {
+        upsertEntry(r.entry);
+        indexed++;
+      } else if (r.broken) {
+        upsertBroken(r.broken);
+        brokenN++;
+      }
+    }
+  });
+  tx();
+  return { indexed, broken: brokenN, removed: removed.length };
+}
+
 /** Incremental: a file was removed. */
 export function unindexFile(filePath: string): void {
   removeFile(filePath);

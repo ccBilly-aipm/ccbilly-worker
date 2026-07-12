@@ -126,3 +126,31 @@ describe("renderMarkdown — legitimate content must still render (regression)",
     expect(html).toMatch(/<li/i);
   });
 });
+
+describe("renderMarkdown — mtime/content cache (S2-3)", () => {
+  it("returns identical output on repeated identical input (cache hit)", () => {
+    const md = "# Cached\n\nsee [[note]] and `code`";
+    const a = renderMarkdown(md);
+    const b = renderMarkdown(md);
+    expect(a).toBe(b);
+    expect(a).toMatch(/<h1/i);
+  });
+
+  it("different content produces different output (natural mtime correctness)", () => {
+    const a = renderMarkdown("version A");
+    const b = renderMarkdown("version B");
+    expect(a).not.toBe(b);
+    expect(a).toContain("version A");
+    expect(b).toContain("version B");
+  });
+
+  it("still sanitizes even when served from cache", async () => {
+    const { clearRenderCache } = await import("../../src/lib/markdown/render");
+    clearRenderCache();
+    const evil = "<script>alert(1)</script>";
+    const first = renderMarkdown(evil);
+    const second = renderMarkdown(evil); // cache hit
+    expect(first).toBe(second);
+    expect(first).not.toMatch(/<script/i);
+  });
+});
