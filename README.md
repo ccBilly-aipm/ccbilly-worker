@@ -1,6 +1,6 @@
 # ccBilly 工作台
 
-> **双角色**的本地优先（local-first）个人工作台 —— 同一内核、两套人格：**产品经理（PM）** 与 **自媒体创作者**。任务/日报/周报/知识库/应用中心之外，PM 模式给你需求池·RICE·周期燃尽·路线图·决策日志，创作者模式给你选题库·内容管道·发布日历·数据复盘·情报源。深空玻璃拟态视觉，明暗双主题，可拖拽 Widget 仪表盘，还内置 **MCP server** 让 Claude Code 等 Agent 直接驱动它。
+> **双角色**的本地优先（local-first）个人工作台 —— 同一内核、两套人格：**产品经理（PM）** 与 **自媒体创作者**。任务/日报/周报/知识库/应用中心之外，PM 模式给你需求池·RICE·周期燃尽·路线图·决策日志，创作者模式给你选题库·内容管道·发布日历·数据复盘·情报源。深空玻璃拟态视觉，明暗双主题，可拖拽 Widget 仪表盘，还内置 **MCP server**，可供兼容客户端与 Agent 直接驱动。
 
 [![CI](https://github.com/ccBilly-aipm/ccbilly-worker/actions/workflows/ci.yml/badge.svg)](https://github.com/ccBilly-aipm/ccbilly-worker/actions/workflows/ci.yml) ![Next.js](https://img.shields.io/badge/Next.js-15-black) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6) ![MCP](https://img.shields.io/badge/MCP-server-a855f7) ![License](https://img.shields.io/badge/License-MIT-green) ![Data](https://img.shields.io/badge/data-Markdown--first-6ee7ff)
 
@@ -128,10 +128,10 @@ docker compose up --build      # 访问 http://localhost:3000
 
 - `docs/HANDBOOK.md` —— 架构、ADR、数据 schema、里程碑、验收清单（单一事实来源）
 - `docs/BLUEPRINT-V2.md` —— V2 双角色版设计蓝图
-- `docs/MCP.md` —— MCP server 使用文档 + Claude Code 连接示例
+- `docs/MCP.md` —— MCP server 使用文档 + 客户端连接示例
 - `docs/SECURITY_AUDIT.md` / `docs/REVIEW_V2.md` —— 安全审计 + V2 上线前审核
 - `docs/DELIVERY_REPORT.md` —— 交付报告（含 V1.1 / V2.0 人话章节）
-- `CLAUDE.md` / `AGENTS.md` —— AI 协作入口
+- `AGENTS.md` —— AI 协作入口
 
 ## 功能一览
 
@@ -142,7 +142,7 @@ docker compose up --build      # 访问 http://localhost:3000
 - **日报/周报** —— 从动态一键聚合、周复盘四步向导、复制为 Markdown（飞书友好）、图表、导出
 - **快速捕捉 Inbox** —— 全局 `!` 命令面板一句话入库，稍后分诊为任务/需求/选题
 - **命令面板 + 快捷键** —— `Cmd/Ctrl+K` 搜索/动作/前往，`?` 快捷键表；可保存视图
-- **知识库 / Skill 管理 / 应用中心 / 后台** —— 见下方安全模型；Skill 管真实 `~/.claude/skills`（白名单防穿越）
+- **知识库 / Skill 管理 / 应用中心 / 后台** —— 见下方安全模型；Skill 管理支持本地 Skills 目录（白名单防穿越）
 
 **PM 模式**
 - **需求池** RICE 打分排序 + inbox→pool→scheduled→shipped 分诊 · **周期** 燃尽图 · **路线图** 时间线 · **决策日志** ADR 模板 + 到期复盘 · **纪要→行动项** 批量转任务 · **模板包** PRD/竞品/访谈/复盘
@@ -151,7 +151,7 @@ docker compose up --build      # 访问 http://localhost:3000
 - **选题库** 灵感卡 · **内容管道** 五列拖拽看板 · **发布日历** 月视图拖拽改期 · **一稿多平台** 适配清单 · **数据复盘** 快照录入 + 跨平台对比 · **情报源** RSS/JSON 订阅（SSRF 守卫，仅白名单出网）
 
 **Agent 集成**
-- **MCP server** —— `pnpm mcp`（stdio）暴露 7 个工具，让 Claude Code 等 Agent 直接驱动工作台（查/建任务、追加动态、记选题、生成日报、读统计）。写工具受鉴权约束。见 [docs/MCP.md](docs/MCP.md)
+- **MCP server** —— `pnpm mcp`（stdio）暴露 7 个工具，让兼容的 Agent 直接驱动工作台（查/建任务、追加动态、记选题、生成日报、读统计）。写工具受鉴权约束。见 [docs/MCP.md](docs/MCP.md)
 
 ## 里程碑进度
 
